@@ -1,0 +1,5 @@
+export const CeraProRegular = 'Cera Pro Regular'
+export const CeraProBold = 'Cera Pro Bold'
+export const InterBold = 'Inter-Bold'
+export const InterRegular = 'Inter-Regular' 
+export const InterMedium = 'Inter-Medium' 
