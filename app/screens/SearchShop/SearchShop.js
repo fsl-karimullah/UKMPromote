@@ -1,31 +1,36 @@
-// SearchShop.js
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Image } from 'react-native';
-
-const ShopCardVertical = ({ title, subtitle, image, isHot, address }) => (
-  <View style={styles.cardContainer}>
-    <Image source={{ uri: image }} style={styles.cardImage} />
-    <View style={styles.cardTextContainer}>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardSubtitle}>{subtitle}</Text>
-      {isHot && <Text style={styles.hotIcon}>Hot</Text>}
-      <Text style={styles.cardAddress}>{address}</Text>
-    </View>
-  </View>
-);
+import { StyleSheet, Text, View, TextInput, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
+import ShopCardVertical from '../../components/Cards/ShopCardVertical';
+import { heightPercentageToDP } from 'react-native-responsive-screen';
 
 const SearchShop = () => {
-  // Dummy data for vertically scrolling cards
   const shopData = [
     {
-      title: 'Shop 1',
-      subtitle: 'Lorem ipsum dolor',
-      image: 'https://placekitten.com/200/200',
+      title: 'Geprek AA Mastrip',
+      subtitle: 'Toko ayam geprek',
+      image: 'https://cdn1.katadata.co.id/media/images/thumb/2021/08/24/Menyulap_Eceng_Gondok_Menjadi_Kerjainan_Tangan_Bernilai_Jual_Tinggi-2021_08_24-10_59_37_3e15c01c7cbe682623f5a38efc0b84bc_960x640_thumb.jpg',
       isHot: true,
       address: 'Jalan situbondo no 5 cindogo tapen bondowoso',
     },
-    // Add more shop data as needed
+    {
+      title: 'Dapur Mama Ica',
+      subtitle: 'Toko Kelontong',
+      image: 'https://gobiz.co.id/pusat-pengetahuan/wp-content/uploads/2021/07/Farhan-Abas-Unsplash-UMKM-usaha-kecil-usaha-mikro-2.jpg',
+      isHot: false,
+      address: 'Jalan situbondo no 10 cindogo tapen bondowoso',
+    },
+    {
+      title: 'Cafe Eterno Jember',
+      subtitle: 'Cafe paling terfav dan terkenal di jember',
+      image: 'https://blogger.googleusercontent.com/img/a/AVvXsEgsxNEbyIPU6e3Tw8PVRTEQaS6f3rc_Gs03wlmG2Ca2aNUdV9bS5yu63SOGjg0M7hmQ73ZvPC2jcImV2gnZfa3D-6iP6OCndYSFUdHAqMgLim5CdDbrWcNr-zdv60IT_D9I7dv-OYW4YvWurfZKuEEdyiWmGo2XbXxJ9wAz4KjX_yE8m-I1t2ULwJuP=w1200-h630-p-k-no-nu',
+      isHot: true,
+      address: 'Jalan situbondo no 15 cindogo tapen bondowoso',
+    },
   ];
+
+  const renderItem = ({ item }) => (
+    <ShopCardVertical {...item} />
+  );
 
   return (
     <View style={styles.container}>
@@ -33,15 +38,15 @@ const SearchShop = () => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search shops..."
-          // Add search functionality as needed
         />
       </View>
 
-      <ScrollView>
-        {shopData.map((shop, index) => (
-          <ShopCardVertical key={index} {...shop} />
-        ))}
-      </ScrollView>
+      <FlatList
+        data={shopData}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+      />
     </View>
   );
 };
@@ -50,6 +55,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    marginBottom:heightPercentageToDP(10),
   },
   searchBarContainer: {
     marginBottom: 16,
@@ -60,42 +66,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: 'hidden',
-    elevation: 2,
-  },
-  cardImage: {
-    width: 80,
-    height: 80,
-    resizeMode: 'cover',
-  },
-  cardTextContainer: {
-    flex: 1,
-    padding: 12,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  cardSubtitle: {
-    fontSize: 14,
-    color: '#555',
-  },
-  hotIcon: {
-    fontSize: 12,
-    color: 'red',
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  cardAddress: {
-    fontSize: 12,
-    color: '#888',
   },
 });
 

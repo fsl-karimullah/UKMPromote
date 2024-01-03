@@ -15,11 +15,11 @@ import {InterBold} from '../../resources/fonts';
 import CategoryItem from '../../components/Cards/CategoryItem';
 import TitleWithArrow from '../../components/TitleWithButtonRight/Title';
 
-const Home = () => {
+const Home = ({navigation}) => {
   const bannerImages = [
-    'https://placekitten.com/300/200',
-    'https://placekitten.com/300/200',
-    'https://placekitten.com/300/200',
+    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
+    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
+    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
   ];
 
   const shopData = [
@@ -27,21 +27,21 @@ const Home = () => {
       id: '1',
       title: 'Geprek AA Mastrip',
       subtitle: 'Jalan Mastrip no. 5 cindogo jember bondowoso',
-      image: 'https://placekitten.com/300/200',
+      image: 'https://images.bisnis.com/posts/2022/10/22/1590315/umkm_timur.jakarta.go.id.jpg',
       isPopular: true,
     },
     {
       id: '2',
       title: 'Shop 2',
       subtitle: 'Subtitle 2',
-      image: 'https://placekitten.com/300/201',
+      image: 'https://images.bisnis.com/posts/2022/10/22/1590315/umkm_timur.jakarta.go.id.jpg',
       isPopular: false,
     },
     {
       id: '3',
       title: 'Shop 3',
       subtitle: 'Subtitle 3',
-      image: 'https://placekitten.com/300/202',
+      image: 'https://images.bisnis.com/posts/2022/10/22/1590315/umkm_timur.jakarta.go.id.jpg',
       isPopular: true,
     },
   ];
@@ -69,7 +69,7 @@ const Home = () => {
         </View>
 
         <View style={styles.middleContainer}>
-          <Text style={styles.locationText}>User Location</Text>
+          <Text style={styles.locationText}>Jember, Sumbersari</Text>
         </View>
 
         <View style={styles.rightContainer}>
@@ -97,7 +97,7 @@ const Home = () => {
         />
       </View>
       <View style={styles.containerCard}>
-        <TitleWithArrow title={'Toko Populer'} />
+        <TitleWithArrow title={'Toko Populer'} onPressSeeAll={() => navigation.navigate('SearchShopScreen')} />
         <View>
           <FlatList
             data={shopData}
