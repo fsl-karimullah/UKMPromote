@@ -1,14 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Pressable } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 import Icon from 'react-native-vector-icons/FontAwesome5'; 
 import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_PRIMARY } from '../../resources/colors';
 
-const ShopCard = ({ title, subtitle, image, isPopular }) => {
+const ShopCard = ({ title, subtitle, image, isPopular , onPress}) => {
   return (
     <ImageBackground source={{ uri: image }} style={styles.container}>
-      <View style={styles.contentContainer}>
+      <Pressable onPress={onPress} style={styles.contentContainer}>
         {isPopular && (
           <View style={styles.popularContainer}>
             <Icon name="fire" size={30} color={COLOR_PRIMARY} />
@@ -16,7 +16,7 @@ const ShopCard = ({ title, subtitle, image, isPopular }) => {
         )}
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
-      </View>
+      </Pressable>
     </ImageBackground>
   );
 };

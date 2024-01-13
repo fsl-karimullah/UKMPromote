@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
 import ShopCardVertical from '../../components/Cards/ShopCardVertical';
 import { heightPercentageToDP } from 'react-native-responsive-screen';
 
 const SearchShop = () => {
+  const [numColumns, setNumColumns] = useState(2);
+
   const shopData = [
     {
       title: 'Geprek AA Mastrip',
@@ -37,7 +39,7 @@ const SearchShop = () => {
       <View style={styles.searchBarContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search shops..."
+          placeholder="Cari Barang atau Jasa"
         />
       </View>
 
@@ -46,6 +48,8 @@ const SearchShop = () => {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
+        numColumns={numColumns} 
+        columnWrapperStyle={styles.columnWrapper}
       />
     </View>
   );
@@ -55,7 +59,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    marginBottom:heightPercentageToDP(10),
+    marginBottom: heightPercentageToDP(10),
   },
   searchBarContainer: {
     marginBottom: 16,
@@ -66,6 +70,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
   },
 });
 

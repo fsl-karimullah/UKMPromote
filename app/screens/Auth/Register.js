@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,15 +9,73 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { InterBold, InterMedium } from '../../resources/fonts';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {InterBold, InterMedium} from '../../resources/fonts';
 import images from '../../resources/images';
-import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
-import { COLOR_PRIMARY } from '../../resources/colors';
+import {
+  heightPercentageToDP,
+  widthPercentageToDP,
+} from 'react-native-responsive-screen';
+import {COLOR_PRIMARY} from '../../resources/colors';
+import axios from 'axios';
+import {endpoint} from '../../api/endpoint';
+import {showToast} from '../../resources/helper';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../../redux/slices/userSlices';
+import {connect} from 'react-redux'
+const Register = ({registerUser}) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
-const Register = () => {
+
+  const isEmailValid = email => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegisterPress = () => {
-    console.log('Register button pressed');
+    if (!name || !email || !password || !passwordConfirmation) {
+      showToast('error', 'Gagal', 'Harap isi semua kolom');
+      return;
+    }
+
+    if (!isEmailValid(email)) {
+      showToast('error', 'Gagal', 'Email Anda Tidak Valid');
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      showToast('error', 'Gagal', 'Password Tidak Sama');
+      return;
+    }
+
+    const formData = {
+      name,
+      email,
+      password,
+      password_confirmation: passwordConfirmation,
+    };
+
+    axios
+      .post(endpoint.registerUser, formData)
+      .then(response => {
+        showToast('success', 'Sukses', 'Register Berhasil');
+        console.log(response.data);
+        registerUser(response.data);
+      })
+      .catch(error => {
+        if (error.response.status === 422) {
+          const errors = error.response.data.errors;
+
+          if (errors.email) {
+            showToast('error', 'Gagal', 'Email Sudah Digunakan');
+          }
+        } else {
+          console.error('Registration failed!', error.response.data);
+        }
+      });
   };
 
   const handleTermsPress = () => {
@@ -27,9 +85,8 @@ const Register = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+        contentContainerStyle={{flexGrow: 1}}
+        keyboardShouldPersistTaps="handled">
         <KeyboardAvoidingView style={styles.innerContainer} behavior="padding">
           <Image source={images.RegisterIlu} style={styles.illuImg} />
           <Text style={styles.title}>Daftar</Text>
@@ -37,33 +94,40 @@ const Register = () => {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Username"
+              placeholder="Name"
               placeholderTextColor="#7E7E7E"
+              value={name}
+              onChangeText={text => setName(text)}
             />
             <TextInput
               style={styles.input}
               placeholder="Email"
               keyboardType="email-address"
               placeholderTextColor="#7E7E7E"
+              value={email}
+              onChangeText={text => setEmail(text)}
             />
             <TextInput
               style={styles.input}
               placeholder="Password"
               secureTextEntry={true}
               placeholderTextColor="#7E7E7E"
+              value={password}
+              onChangeText={text => setPassword(text)}
             />
             <TextInput
               style={styles.input}
               placeholder="Confirm Password"
               secureTextEntry={true}
               placeholderTextColor="#7E7E7E"
+              value={passwordConfirmation}
+              onChangeText={text => setPasswordConfirmation(text)}
             />
           </View>
 
           <TouchableOpacity
             style={styles.registerButton}
-            onPress={handleRegisterPress}
-          >
+            onPress={handleRegisterPress}>
             <Text style={styles.buttonText}>Daftar</Text>
           </TouchableOpacity>
 
@@ -134,7 +198,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',
-    width:widthPercentageToDP(70)
+    width: widthPercentageToDP(70),
   },
   buttonText: {
     color: 'white',
@@ -143,4 +207,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Register;
+
+const mapDispatchToProps = {
+  registerUser,
+};
+
+export default connect(null, mapDispatchToProps)(Register);

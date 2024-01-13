@@ -1,15 +1,32 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { InterBold, InterMedium } from '../../resources/fonts';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+} from 'react-native';
+import {
+  heightPercentageToDP,
+  widthPercentageToDP,
+} from 'react-native-responsive-screen';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {InterBold, InterMedium} from '../../resources/fonts';
 import images from '../../resources/images';
-import { COLOR_GRAY_SECONDARY, COLOR_PRIMARY, COLOR_SECONDARY } from '../../resources/colors';
+import {
+  COLOR_GRAY_SECONDARY,
+  COLOR_GRAY_THIRD,
+  COLOR_PRIMARY,
+  COLOR_SECONDARY,
+} from '../../resources/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons'; 
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({navigation}) => {
   const handleLoginPress = () => {
     console.log('Login button pressed');
-    navigation.navigate('Tab')
+    navigation.navigate('Tab');
   };
 
   const handleCreateAccountPress = () => {
@@ -23,40 +40,53 @@ const LoginScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Ayo Support Brand Lokal</Text>
-        <Text style={styles.headerSubtitle}>Cari barang atau jasa yang anda butuhkan disini.</Text>
-      </View>
-      <View style={styles.content}>
-        <Image
-          source={images.LoginIlu} 
-          style={styles.illustratorImage}
-        />
-        
-        <Text style={styles.introText}>Login</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            secureTextEntry={true}
-          />
-          <TouchableOpacity onPress={handleForgotPasswordPress}>
-            <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Ayo Support Brand Lokal</Text>
+          <Text style={styles.headerSubtitle}>
+            Cari barang atau jasa yang anda butuhkan disini.
+          </Text>
+        </View>
+        <View style={styles.content}>
+          <Image source={images.LoginIlu} style={styles.illustratorImage} />
+
+          <Text style={styles.introText}>Login</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              keyboardType="email-address"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry={true}
+            />
+            <TouchableOpacity onPress={handleForgotPasswordPress}>
+              <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={handleLoginPress}>
+            <Text style={styles.buttonText}>Masuk</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.createAccountButton}
+            onPress={handleCreateAccountPress}>
+            <Text style={styles.buttonTextRegister}>Buat Akun Baru</Text>
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.textBottom}>Atau</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleCreateAccountPress}>
+            <View style={{display:'flex', flexDirection:'row'}}>
+            <Ionicons name="logo-google" size={24} color="black" style={{marginRight:15}} />
+            <Text style={styles.buttonTextRegister}>Login Dengan Google</Text>
+            </View>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
-          <Text style={styles.buttonText}>Masuk</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.createAccountButton} onPress={handleCreateAccountPress}>
-          <Text style={styles.buttonTextRegister}>Buat Akun Baru</Text>
-        </TouchableOpacity>
-       
-      </View>
       </ScrollView>
       {/* <View style={styles.containerCopyright}>
           <Text style={styles.signInText}>Maded With ❤️ By Sixeyes Technologies</Text>
@@ -81,9 +111,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginRight: 5,
   },
+  textBottom: {
+    fontSize: 24,
+    fontFamily: InterBold,
+    marginRight: 5,
+    textAlign: 'center',
+  },
   headerSubtitle: {
     fontSize: 18,
-    textAlign:'center'
+    textAlign: 'center',
   },
   content: {
     flex: 1,
@@ -92,11 +128,11 @@ const styles = StyleSheet.create({
   },
   illustratorImage: {
     width: widthPercentageToDP(70),
-    height: heightPercentageToDP(30), 
+    height: heightPercentageToDP(30),
     marginBottom: 20,
     resizeMode: 'cover',
     borderRadius: 8,
-    alignSelf:'center'
+    alignSelf: 'center',
   },
   introText: {
     fontSize: 24,
@@ -127,7 +163,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR_GRAY_SECONDARY,
     paddingVertical: 15,
     borderRadius: 8,
-    alignItems: 'center', 
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  googleButton: {
+    backgroundColor: COLOR_GRAY_THIRD,
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
     marginTop: 10,
   },
   buttonText: {

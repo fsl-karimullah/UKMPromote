@@ -1,4 +1,4 @@
-// BannerSlider.js
+// ShopSlider.js
 import React from 'react';
 import { View, StyleSheet, Image, Pressable } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
@@ -6,22 +6,24 @@ import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsi
 
 const styles = StyleSheet.create({
   bannerContainer: {
-    height: heightPercentageToDP(20),
-    margin: 20,
+    height: heightPercentageToDP(30),
+//    width:widthPercentageToDP(100),
+
   },
   bannerImage: { 
     flex: 1,
-    borderRadius:20
+    width:widthPercentageToDP(100),
+    height:heightPercentageToDP(20)
   },
 });
 
-const BannerSlider = ({ images, onClick }) => {
+const ShopSlider = ({ images, onClick }) => {
   return (
     <Pressable style={styles.bannerContainer} onPress={onClick}>
       <Carousel
-        width={widthPercentageToDP(90)}
-        height={heightPercentageToDP(20)} 
-        autoPlay={true} 
+        width={widthPercentageToDP(100)}
+        height={heightPercentageToDP(30)} 
+        autoPlay={false}
         data={images}
         autoPlayInterval={3000}
         // onSnapToItem={(index) => console.log('current index:', index)}
@@ -35,4 +37,4 @@ const BannerSlider = ({ images, onClick }) => {
   );
 };
 
-export default BannerSlider;
+export default ShopSlider;

@@ -110,6 +110,7 @@ const Home = ({navigation}) => {
                 subtitle={item.subtitle}
                 image={item.image}
                 isPopular={item.isPopular}
+                onPress={() => navigation.navigate('DetailShop')}
               />
             )}
           />

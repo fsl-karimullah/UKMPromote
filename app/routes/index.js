@@ -13,6 +13,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {COLOR_GRAY_SECONDARY, COLOR_PRIMARY} from '../resources/colors';
 import {heightPercentageToDP} from 'react-native-responsive-screen';
+import DetailShop from '../screens/DetailShop/DetailShop';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -92,6 +93,13 @@ function App() {
           component={Register}
           options={{
             headerTitle: 'Buat Akun Baru',
+          }}
+        />
+        <Stack.Screen
+          name="DetailShop"
+          component={DetailShop}
+          options={{
+            headerTitle:'Detail',
           }}
         />
         <Stack.Screen
