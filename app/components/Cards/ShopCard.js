@@ -4,20 +4,35 @@ import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsi
 import Icon from 'react-native-vector-icons/FontAwesome5'; 
 import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_PRIMARY } from '../../resources/colors';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder'; // Import the shimmer placeholder
 
-const ShopCard = ({ title, subtitle, image, isPopular , onPress}) => {
+const ShopCard = ({ title, subtitle, image, isPopular, onPress, isLoading }) => {
   return (
-    <ImageBackground source={{ uri: image }} style={styles.container}>
-      <Pressable onPress={onPress} style={styles.contentContainer}>
-        {isPopular && (
-          <View style={styles.popularContainer}>
-            <Icon name="fire" size={30} color={COLOR_PRIMARY} />
-          </View>
-        )}
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
-      </Pressable>
-    </ImageBackground>
+    <ShimmerPlaceholder
+      style={styles.container}
+      visible={isLoading} 
+    >
+      <ImageBackground source={{ uri: image }} style={styles.imageContainer}>
+        <Pressable onPress={onPress} style={styles.contentContainer}>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ShimmerPlaceholder style={styles.titlePlaceholder} />
+              <ShimmerPlaceholder style={styles.subtitlePlaceholder} />
+            </View>
+          ) : (
+            <>
+              {isPopular && (
+                <View style={styles.popularContainer}>
+                  <Icon name="fire" size={30} color={COLOR_PRIMARY} />
+                </View>
+              )}
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.subtitle}>{subtitle}</Text>
+            </>
+          )}
+        </Pressable>
+      </ImageBackground>
+    </ShimmerPlaceholder>
   );
 };
 
@@ -28,6 +43,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     marginHorizontal: 8,
+  },
+  imageContainer: {
+    width: '100%',
+    height: '100%',
   },
   contentContainer: {
     flex: 1,
@@ -52,6 +71,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
+  },
+  loadingContainer: {
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    flex: 1,
+  },
+  titlePlaceholder: {
+    width: '70%',
+    height: 20,
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  subtitlePlaceholder: {
+    width: '50%',
+    height: 16,
+    borderRadius: 4,
+    marginBottom: 4,
   },
 });
 

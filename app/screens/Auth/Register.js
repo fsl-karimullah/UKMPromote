@@ -20,15 +20,16 @@ import {COLOR_PRIMARY} from '../../resources/colors';
 import axios from 'axios';
 import {endpoint} from '../../api/endpoint';
 import {showToast} from '../../resources/helper';
-import { useDispatch, useSelector } from 'react-redux';
-import { registerUser } from '../../redux/slices/userSlices';
-import {connect} from 'react-redux'
+import {registerUser, resetUser} from '../../redux/slices/userSlices';
+import {connect} from 'react-redux';
+import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
+
 const Register = ({registerUser}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
-
+  const [isLoadingButton, setisLoadingButton] = useState(false);
 
   const isEmailValid = email => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,13 +58,18 @@ const Register = ({registerUser}) => {
       password,
       password_confirmation: passwordConfirmation,
     };
-
+    setisLoadingButton(true);
     axios
       .post(endpoint.registerUser, formData)
       .then(response => {
         showToast('success', 'Sukses', 'Register Berhasil');
+        navigation.goBack()
         console.log(response.data);
         registerUser(response.data);
+        setEmail('');
+        setName('');
+        setPassword('');
+        setPasswordConfirmation('');
       })
       .catch(error => {
         if (error.response.status === 422) {
@@ -75,6 +81,9 @@ const Register = ({registerUser}) => {
         } else {
           console.error('Registration failed!', error.response.data);
         }
+      })
+      .finally(() => {
+        setisLoadingButton(false);
       });
   };
 
@@ -124,13 +133,13 @@ const Register = ({registerUser}) => {
               onChangeText={text => setPasswordConfirmation(text)}
             />
           </View>
-
-          <TouchableOpacity
-            style={styles.registerButton}
-            onPress={handleRegisterPress}>
-            <Text style={styles.buttonText}>Daftar</Text>
-          </TouchableOpacity>
-
+          <View style={{width: widthPercentageToDP(90)}}>
+            <ButtonPrimary
+              title={'Daftar'}
+              onPress={handleRegisterPress}
+              isLoading={isLoadingButton}
+            />
+          </View>
           <Text style={styles.termsText}>
             By registering, you agree to our{' '}
             <Text style={styles.linkText} onPress={handleTermsPress}>
@@ -193,20 +202,7 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontFamily: InterMedium,
   },
-  registerButton: {
-    backgroundColor: COLOR_PRIMARY,
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    width: widthPercentageToDP(70),
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
 });
-
 
 const mapDispatchToProps = {
   registerUser,

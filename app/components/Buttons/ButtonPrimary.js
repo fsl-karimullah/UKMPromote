@@ -1,14 +1,45 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
+import {COLOR_PRIMARY} from '../../resources/colors';
+import {InterBold} from '../../resources/fonts';
 
-const ButtonPrimary = () => {
+const ButtonPrimary = ({title, onPress, isLoading}) => {
+  const renderContent = () => {
+    if (isLoading) {
+      return <ActivityIndicator size="small" color="white" />;
+    } else {
+      return <Text style={styles.buttonText}>{title}</Text>;
+    }
+  };
+
   return (
-    <View>
-      <Text>ButtonPrimary</Text>
-    </View>
-  )
-}
+    <TouchableOpacity
+      style={styles.loginButton}
+      onPress={onPress}
+      disabled={isLoading}>
+      {renderContent()}
+    </TouchableOpacity>
+  );
+};
 
-export default ButtonPrimary
+export default ButtonPrimary;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  loginButton: {
+    backgroundColor: COLOR_PRIMARY,
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontFamily: InterBold,
+  },
+});

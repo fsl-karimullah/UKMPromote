@@ -14,6 +14,12 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {COLOR_GRAY_SECONDARY, COLOR_PRIMARY} from '../resources/colors';
 import {heightPercentageToDP} from 'react-native-responsive-screen';
 import DetailShop from '../screens/DetailShop/DetailShop';
+import {InterBold} from '../resources/fonts';
+import {useDispatch, useSelector} from 'react-redux';
+import {registerUser} from '../redux/slices/userSlices';
+import {useNavigation} from '@react-navigation/native';
+import Fav from '../screens/FavScreen/Fav';
+import Octicon from 'react-native-vector-icons/Octicons'
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -23,27 +29,20 @@ function MyTabs() {
     <Tab.Navigator
       screenOptions={{
         tabBarHideOnKeyboard: true,
-          tabBarStyle: {
-            display: 'flex',
-            position: 'absolute',
-            bottom: 20,
-            left: 25,
-            right: 25,
-            elevation: 5,
-            backgroundColor: '#f7f7f7',
-            borderRadius: 20,
-            height: heightPercentageToDP(7),
-
-          },
-          tabBarShowLabel: false,
-          tabBarActiveTintColor:COLOR_PRIMARY,
-      }}
-      >
+        tabBarStyle: {
+          height: heightPercentageToDP(7),
+        },
+        tabBarActiveTintColor: COLOR_PRIMARY,
+        tabBarLabelStyle: {
+          marginBottom: 4,
+          fontFamily: InterBold,
+        },
+      }}>
       <Tab.Screen
         name="HomeScreen"
         options={{
-          tabBarShowLabel: false,
           headerShown: false,
+          tabBarLabel: 'Beranda',
           tabBarIcon: ({color, size}) => (
             <Entypo name="shop" color={color} size={size} />
           ),
@@ -53,9 +52,8 @@ function MyTabs() {
       <Tab.Screen
         name="SearchShopScreen"
         options={{
-          tabBarShowLabel: false,
           headerTitle: 'Explorasi',
-
+          tabBarLabel: 'Explorasi',
           tabBarIcon: ({color, size}) => (
             <MaterialIcon name="explore" color={color} size={size} />
           ),
@@ -63,10 +61,21 @@ function MyTabs() {
         component={SearchShop}
       />
       <Tab.Screen
+        name="FavoritesScreen"
+        options={{
+          headerTitle: 'Favorit',
+          tabBarLabel: 'Favorit',
+          tabBarIcon: ({color, size}) => (
+            <Octicon name="feed-star" color={color} size={size} />
+          ),
+        }}
+        component={Fav}
+      />
+      <Tab.Screen
         name="ProfileScreen"
         options={{
-          tabBarShowLabel: false,
           headerTitle: 'Profile',
+          tabBarLabel: 'Profil',
           tabBarIcon: ({color, size}) => (
             <FontAwesome name="user-circle" color={color} size={size} />
           ),
@@ -78,40 +87,55 @@ function MyTabs() {
 }
 
 function App() {
+  const userData = useSelector(registerUser);
+  const [isLogin, setisLogin] = React.useState(false);
+
+  React.useEffect(() => {
+    setisLogin(userData.payload.user.isLogin);
+  }, [userData.payload.user.isLogin]);
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen
-          name="Intro"
-          options={{
-            headerShown: false,
-          }}
-          component={Login}
-        />
-        <Stack.Screen
-          name="RegisterScreen"
-          component={Register}
-          options={{
-            headerTitle: 'Buat Akun Baru',
-          }}
-        />
-        <Stack.Screen
-          name="DetailShop"
-          component={DetailShop}
-          options={{
-            headerTitle:'Detail',
-          }}
-        />
-        <Stack.Screen
-          name="Tab"
-          component={MyTabs}
-          options={{
-            headerShown: false,
-          }}
-        />
+        {!isLogin ? (
+          <>
+            <Stack.Screen
+              name="Intro"
+              options={{
+                headerShown: false,
+              }}
+              component={Login}
+            />
+            <Stack.Screen
+              name="RegisterScreen"
+              component={Register}
+              options={{
+                headerTitle: 'Buat Akun Baru',
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen
+              name="Tab"
+              component={MyTabs}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="DetailShop"
+              component={DetailShop}
+              options={{
+                headerShown: false,
+              }}
+            />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
 
 export default App;

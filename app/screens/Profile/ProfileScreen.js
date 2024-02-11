@@ -1,37 +1,78 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
-import { widthPercentageToDP } from 'react-native-responsive-screen';
+import React, {useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
+import {widthPercentageToDP} from 'react-native-responsive-screen';
 import Icon from 'react-native-vector-icons/FontAwesome'; // for FontAwesome icons
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'; // for MaterialCommunityIcons
-import { COLOR_PRIMARY } from '../../resources/colors';
-import { InterBold, InterMedium } from '../../resources/fonts';
+import {COLOR_PRIMARY} from '../../resources/colors';
+import {InterBold, InterMedium} from '../../resources/fonts';
+import {useDispatch, useSelector} from 'react-redux';
+import {endpoint} from '../../api/endpoint';
+import axios from 'axios';
+import {
+  logoutUserStart,
+  logoutUserSuccess,
+  logoutUserFailure,
+} from '../../redux/slices/authSlice';
+import ButtonIcon from '../../components/Buttons/ButtonIcon';
+import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
 
 const ProfileScreen = () => {
-  const [username, setUsername] = useState('John Doe');
-  const [email, setEmail] = useState('john.doe@example.com');
+  const dispatch = useDispatch();
+  const userData = useSelector(state => state.user);
+  const [username, setUsername] = useState(userData.data.data.name);
+  const [email, setEmail] = useState(userData.data.data.email);
 
-  const handleUsernameChange = (text) => {
+  useEffect(() => {
+    console.log(userData.data.data.token);
+  }, []);
+
+  const handleUsernameChange = text => {
     setUsername(text);
   };
 
-  const handleEmailChange = (text) => {
+  const handleEmailChange = text => {
     setEmail(text);
   };
 
   const handleEditProfile = () => {
-    // Add functionality for editing profile
     console.log('Edit Profile clicked!');
   };
 
-  const handleLogout = () => {
-    // Add functionality for logout
-    console.log('Logout clicked!');
+  const handleLogout = async () => {
+    try {
+      dispatch(logoutUserStart());
+
+      const headers = {
+        Authorization: `Bearer ${userData.data.data.token}`,
+      };
+
+      const response = await axios.get(endpoint.logoutUser, {headers});
+
+      if (response.status === 200) {
+        dispatch(logoutUserSuccess());
+      } else {
+        console.error('Logout failed:', response.status, response.statusText);
+        Alert.alert('Logout failed. Please try again.');
+        dispatch(logoutUserFailure('Logout failed'));
+      }
+    } catch (error) {
+      console.error('Logout error:', error.message);
+      Alert.alert('An error occurred. Please try again.');
+      dispatch(logoutUserFailure('An error occurred'));
+    }
   };
 
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: 'https://placekitten.com/200/200' }}
+        source={{uri: 'https://placekitten.com/200/200'}}
         style={styles.profileImage}
       />
 
@@ -43,7 +84,12 @@ const ProfileScreen = () => {
             onChangeText={handleUsernameChange}
             placeholder="Enter your username"
           />
-          <MaterialIcon name="pencil" size={20} color="#555" style={styles.inputIcon} />
+          <MaterialIcon
+            name="pencil"
+            size={20}
+            color="#555"
+            style={styles.inputIcon}
+          />
         </View>
         <View style={styles.inputWrapper}>
           <TextInput
@@ -53,7 +99,12 @@ const ProfileScreen = () => {
             placeholder="Enter your email"
             keyboardType="email-address"
           />
-          <MaterialIcon name="pencil" size={20} color="#555" style={styles.inputIcon} />
+          <MaterialIcon
+            name="pencil"
+            size={20}
+            color="#555"
+            style={styles.inputIcon}
+          />
         </View>
       </View>
 
@@ -99,8 +150,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 8,
     color: '#333',
-    fontFamily:InterMedium
-
+    fontFamily: InterMedium,
   },
   inputIcon: {
     marginLeft: 10,
@@ -113,14 +163,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 8,
     marginBottom: 10,
-    width:widthPercentageToDP(90),
-    backgroundColor:COLOR_PRIMARY
+    width: widthPercentageToDP(90),
+    backgroundColor: COLOR_PRIMARY,
   },
   editButtonText: {
     marginLeft: 10,
     color: '#fff',
     fontSize: 18,
-    fontFamily:InterBold
+    fontFamily: InterBold,
   },
   logoutButton: {
     backgroundColor: '#ff6347',
@@ -129,13 +179,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     borderRadius: 8,
-    width:widthPercentageToDP(90),
+    width: widthPercentageToDP(90),
   },
   logoutButtonText: {
     marginLeft: 10,
     color: '#fff',
     fontSize: 18,
-    fontFamily:InterBold
+    fontFamily: InterBold,
   },
 });
 

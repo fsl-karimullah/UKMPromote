@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -21,13 +21,60 @@ import {
   COLOR_PRIMARY,
   COLOR_SECONDARY,
 } from '../../resources/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons'; 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
+import ButtonGray from '../../components/Buttons/ButtonGray';
+import {endpoint} from '../../api/endpoint';
+import axios from 'axios';
+import {showToast} from '../../resources/helper';
+import {registerUser, resetUser} from '../../redux/slices/userSlices';
+import {connect} from 'react-redux';
+const LoginScreen = ({navigation, registerUser}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setisLoading] = useState(false);
 
-const LoginScreen = ({navigation}) => {
   const handleLoginPress = () => {
-    console.log('Login button pressed');
-    navigation.navigate('Tab');
+    if (!email || !password) {
+      showToast('error', 'Gagal', 'Email dan password harus diisi');
+      return;
+    }
+  
+    setisLoading(true);
+   
+    axios
+      .post(
+        endpoint.loginUser,
+        {
+          email: email,
+          password: password,
+        },
+        {
+          headers: {
+            Accept: 'application/json',
+          },
+        },
+      )
+      .then(response => {
+        registerUser(response.data);
+        showToast('success', 'Sukses', 'Selamat Datang');
+        navigation.navigate('Tab');
+        setEmail('');
+        setPassword('');
+      })
+      .catch(error => {
+        if (error.response && error.response.status === 422) {
+          showToast('error', 'Gagal', 'Email atau password salah');
+        } else {
+          console.log(error);
+          showToast('error', 'Gagal', 'Terjadi kesalahan saat login');
+        }
+      })
+      .finally(() => {
+        setisLoading(false);
+      });
   };
+  
 
   const handleCreateAccountPress = () => {
     navigation.navigate('RegisterScreen');
@@ -55,37 +102,26 @@ const LoginScreen = ({navigation}) => {
               style={styles.input}
               placeholder="Email"
               keyboardType="email-address"
+              value={email}
+              onChangeText={text => setEmail(text)}
             />
             <TextInput
               style={styles.input}
               placeholder="Password"
               secureTextEntry={true}
+              value={password}
+              onChangeText={text => setPassword(text)}
             />
             <TouchableOpacity onPress={handleForgotPasswordPress}>
               <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={handleLoginPress}>
-            <Text style={styles.buttonText}>Masuk</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.createAccountButton}
-            onPress={handleCreateAccountPress}>
-            <Text style={styles.buttonTextRegister}>Buat Akun Baru</Text>
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.textBottom}>Atau</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleCreateAccountPress}>
-            <View style={{display:'flex', flexDirection:'row'}}>
-            <Ionicons name="logo-google" size={24} color="black" style={{marginRight:15}} />
-            <Text style={styles.buttonTextRegister}>Login Dengan Google</Text>
-            </View>
-          </TouchableOpacity>
+          <ButtonPrimary title="Masuk" onPress={handleLoginPress} isLoading={isLoading} />
+          <ButtonGray
+          
+            title="Buat Akun Baru"
+            onPress={() => navigation.navigate('RegisterScreen')}
+          /> 
         </View>
       </ScrollView>
       {/* <View style={styles.containerCopyright}>
@@ -153,19 +189,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontFamily: InterMedium,
   },
-  loginButton: {
-    backgroundColor: COLOR_PRIMARY,
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  createAccountButton: {
-    backgroundColor: COLOR_GRAY_SECONDARY,
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
+
   googleButton: {
     backgroundColor: COLOR_GRAY_THIRD,
     paddingVertical: 15,
@@ -173,16 +197,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontFamily: InterBold,
-  },
-  buttonTextRegister: {
-    color: 'black',
-    fontSize: 18,
-    fontFamily: InterBold,
-  },
+
   signInText: {
     color: 'black',
     fontSize: 16,
@@ -206,4 +221,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+const mapDispatchToProps = {
+  registerUser,
+};
+
+export default connect(null, mapDispatchToProps)(LoginScreen);

@@ -1,13 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 import Icon from 'react-native-vector-icons/FontAwesome5'; 
 import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_PRIMARY } from '../../resources/colors';
 
-const ShopCard = ({ title, subtitle, image, isPopular }) => {
+const ShopCard = ({ title, subtitle, image, isPopular, anotherData }) => {
+  const hasLongAddress = subtitle.length > 30;
+
   return (
-    <ImageBackground source={{ uri: image }} style={styles.container}>
+    <View style={[styles.container, { borderBottomLeftRadius: hasLongAddress ? 8 : 8, borderBottomRightRadius: hasLongAddress ? 8 : 8 }]}>
+      <Image source={{ uri: image }} style={styles.image} />
       <View style={styles.contentContainer}>
         {isPopular && (
           <View style={styles.popularContainer}>
@@ -16,36 +19,45 @@ const ShopCard = ({ title, subtitle, image, isPopular }) => {
         )}
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
+        <Text style={styles.anotherData}>{anotherData}</Text>
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     width: widthPercentageToDP(60),
-    height: heightPercentageToDP(30),
     borderRadius: 8,
     overflow: 'hidden',
     marginHorizontal: 8,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    elevation: 2, // Add elevation for a shadow effect (Android)
+  },
+  image: {
+    width: '100%',
+    height: heightPercentageToDP(20),
+    resizeMode: 'cover',
   },
   contentContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
     padding: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    position: 'relative',
   },
   title: {
     fontSize: 20,
     fontFamily: InterBold,
-    color: '#fff',
+    color: '#333',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#fff',
+    color: '#666',
     marginBottom: 4,
+    fontFamily: InterMedium,
+  },
+  anotherData: {
+    fontSize: 14,
+    color: COLOR_PRIMARY,
     fontFamily: InterMedium,
   },
   popularContainer: {

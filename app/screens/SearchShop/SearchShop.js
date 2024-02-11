@@ -1,78 +1,116 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
-import ShopCardVertical from '../../components/Cards/ShopCardVertical';
-import { heightPercentageToDP } from 'react-native-responsive-screen';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, Text, View, TextInput, Pressable} from 'react-native';
+import Modal from 'react-native-modal';
+import {SelectList} from 'react-native-dropdown-select-list';
+import axios from 'axios';
+import {endpoint} from '../../api/endpoint';
+import {useDispatch, useSelector} from 'react-redux';
+import {widthPercentageToDP} from 'react-native-responsive-screen';
+import { showToast } from '../../resources/helper';
 
 const SearchShop = () => {
-  const [numColumns, setNumColumns] = useState(2);
+  const dispatch = useDispatch();
+  const userData = useSelector(state => state.user);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selected, setSelected] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
-  const shopData = [
-    {
-      title: 'Geprek AA Mastrip',
-      subtitle: 'Toko ayam geprek',
-      image: 'https://cdn1.katadata.co.id/media/images/thumb/2021/08/24/Menyulap_Eceng_Gondok_Menjadi_Kerjainan_Tangan_Bernilai_Jual_Tinggi-2021_08_24-10_59_37_3e15c01c7cbe682623f5a38efc0b84bc_960x640_thumb.jpg',
-      isHot: true,
-      address: 'Jalan situbondo no 5 cindogo tapen bondowoso',
-    },
-    {
-      title: 'Dapur Mama Ica',
-      subtitle: 'Toko Kelontong',
-      image: 'https://gobiz.co.id/pusat-pengetahuan/wp-content/uploads/2021/07/Farhan-Abas-Unsplash-UMKM-usaha-kecil-usaha-mikro-2.jpg',
-      isHot: false,
-      address: 'Jalan situbondo no 10 cindogo tapen bondowoso',
-    },
-    {
-      title: 'Cafe Eterno Jember',
-      subtitle: 'Cafe paling terfav dan terkenal di jember',
-      image: 'https://blogger.googleusercontent.com/img/a/AVvXsEgsxNEbyIPU6e3Tw8PVRTEQaS6f3rc_Gs03wlmG2Ca2aNUdV9bS5yu63SOGjg0M7hmQ73ZvPC2jcImV2gnZfa3D-6iP6OCndYSFUdHAqMgLim5CdDbrWcNr-zdv60IT_D9I7dv-OYW4YvWurfZKuEEdyiWmGo2XbXxJ9wAz4KjX_yE8m-I1t2ULwJuP=w1200-h630-p-k-no-nu',
-      isHot: true,
-      address: 'Jalan situbondo no 15 cindogo tapen bondowoso',
-    },
-  ];
 
-  const renderItem = ({ item }) => (
-    <ShopCardVertical {...item} />
-  );
+ 
 
-  return (
+  
+  return ( 
     <View style={styles.container}>
       <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Cari Barang atau Jasa"
-        />
+        <View style={styles.searchInputContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for products or services"
+            placeholderTextColor="#A0A0A0"
+          />
+        </View>
+        <Pressable onPress={() => setShowModal(true)}>
+          <View style={styles.filterContainer}>
+            <Text style={styles.filterText}>Location Name</Text>
+          </View>
+        </Pressable>
       </View>
 
-      <FlatList
-        data={shopData}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        numColumns={numColumns} 
-        columnWrapperStyle={styles.columnWrapper}
-      />
+      <Modal
+        isVisible={showModal}
+        onBackdropPress={() => setShowModal(false)}
+        style={styles.modal}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropTransitionOutTiming={0}
+        backdropOpacity={0.5}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Select Location</Text>
+          <View style={styles.dropdownContainer}>
+           <Text>test</Text>
+              
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    marginBottom: heightPercentageToDP(10),
+    marginBottom: 10,
   },
   searchBarContainer: {
     marginBottom: 16,
   },
-  searchInput: {
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  filterText: {
+    marginRight: 5,
+    color: '#333',
+  },
+  modal: {
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  dropdownContainer: {
+    width: widthPercentageToDP(80),
   },
 });
 
