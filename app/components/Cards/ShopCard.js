@@ -1,38 +1,41 @@
 import React from 'react';
-import { StyleSheet, Text, View, ImageBackground, Pressable } from 'react-native';
-import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
-import Icon from 'react-native-vector-icons/FontAwesome5'; 
-import { InterBold, InterMedium } from '../../resources/fonts';
-import { COLOR_PRIMARY } from '../../resources/colors';
-import ShimmerPlaceholder from 'react-native-shimmer-placeholder'; // Import the shimmer placeholder
+import {StyleSheet, Text, View, ImageBackground, Pressable, ActivityIndicator} from 'react-native';
+import {
+  heightPercentageToDP,
+  widthPercentageToDP,
+} from 'react-native-responsive-screen';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import {InterBold, InterMedium} from '../../resources/fonts';
+import {COLOR_PRIMARY} from '../../resources/colors';
+import Shimmer from 'react-native-shimmer';
 
-const ShopCard = ({ title, subtitle, image, isPopular, onPress, isLoading }) => {
+const ShopCard = ({title, subtitle, image, isPopular, onPress, isLoading}) => {
   return (
-    <ShimmerPlaceholder
-      style={styles.container}
-      visible={isLoading} 
-    >
-      <ImageBackground source={{ uri: image }} style={styles.imageContainer}>
-        <Pressable onPress={onPress} style={styles.contentContainer}>
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <ShimmerPlaceholder style={styles.titlePlaceholder} />
-              <ShimmerPlaceholder style={styles.subtitlePlaceholder} />
-            </View>
-          ) : (
-            <>
-              {isPopular && (
-                <View style={styles.popularContainer}>
-                  <Icon name="fire" size={30} color={COLOR_PRIMARY} />
-                </View>
-              )}
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.subtitle}>{subtitle}</Text>
-            </>
-          )}
-        </Pressable>
-      </ImageBackground>
-    </ShimmerPlaceholder>
+    <View style={styles.container}>
+      {isLoading ? (
+        <Shimmer animating={!isLoading}>
+          <View style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center'
+          }}>
+          <ActivityIndicator size={'large'} />
+          </View>
+        </Shimmer>
+      ) : (
+        <ImageBackground source={{uri: image}} style={styles.imageContainer}>
+          <Pressable onPress={onPress} style={styles.contentContainer}>
+            {isPopular && (
+              <View style={styles.popularContainer}>
+                <Icon name="fire" size={30} color={COLOR_PRIMARY} />
+              </View>
+            )}
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.subtitle}>{subtitle}</Text>
+          </Pressable>
+        </ImageBackground>
+      )}
+    </View>
   );
 };
 
@@ -71,23 +74,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-  },
-  loadingContainer: {
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    flex: 1,
-  },
-  titlePlaceholder: {
-    width: '70%',
-    height: 20,
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  subtitlePlaceholder: {
-    width: '50%',
-    height: 16,
-    borderRadius: 4,
-    marginBottom: 4,
   },
 });
 

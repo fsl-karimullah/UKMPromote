@@ -144,8 +144,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
     marginRight: 5,
+    fontFamily:InterBold,
+    color:'black'
   },
   textBottom: {
     fontSize: 24,
@@ -156,6 +157,8 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 18,
     textAlign: 'center',
+    fontFamily:InterMedium,
+    color:'black'
   },
   content: {
     flex: 1,

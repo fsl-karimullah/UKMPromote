@@ -20,6 +20,7 @@ import {registerUser} from '../redux/slices/userSlices';
 import {useNavigation} from '@react-navigation/native';
 import Fav from '../screens/FavScreen/Fav';
 import Octicon from 'react-native-vector-icons/Octicons'
+import SplashScreen from '../screens/SplashScreen/SplashScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -126,6 +127,13 @@ function App() {
             <Stack.Screen
               name="DetailShop"
               component={DetailShop}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="SplashScreen"
+              component={SplashScreen}
               options={{
                 headerShown: false,
               }}

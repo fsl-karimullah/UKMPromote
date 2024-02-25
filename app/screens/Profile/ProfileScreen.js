@@ -6,15 +6,19 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Alert,
+  Button,
 } from 'react-native';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
-import Icon from 'react-native-vector-icons/FontAwesome'; // for FontAwesome icons
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'; // for MaterialCommunityIcons
+import Icon from 'react-native-vector-icons/FontAwesome'; 
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 import {COLOR_PRIMARY} from '../../resources/colors';
 import {InterBold, InterMedium} from '../../resources/fonts';
 import {useDispatch, useSelector} from 'react-redux';
 import {endpoint} from '../../api/endpoint';
 import axios from 'axios';
+import Modal from "react-native-modal";
+import ButtonGray from '../../components/Buttons/ButtonGray'
 import {
   logoutUserStart,
   logoutUserSuccess,
@@ -28,6 +32,11 @@ const ProfileScreen = () => {
   const userData = useSelector(state => state.user);
   const [username, setUsername] = useState(userData.data.data.name);
   const [email, setEmail] = useState(userData.data.data.email);
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   useEffect(() => {
     console.log(userData.data.data.token);
@@ -47,27 +56,26 @@ const ProfileScreen = () => {
 
   const handleLogout = async () => {
     try {
-      dispatch(logoutUserStart());
-
-      const headers = {
-        Authorization: `Bearer ${userData.data.data.token}`,
-      };
-
-      const response = await axios.get(endpoint.logoutUser, {headers});
-
+  
+      const response = await axios.get(endpoint.logoutUser, {
+        headers: {
+          Authorization: `Bearer ${userData.data.data.token}`,
+        },
+      });
+  
       if (response.status === 200) {
-        dispatch(logoutUserSuccess());
+        console.log('success');
+
       } else {
         console.error('Logout failed:', response.status, response.statusText);
         Alert.alert('Logout failed. Please try again.');
-        dispatch(logoutUserFailure('Logout failed'));
       }
     } catch (error) {
       console.error('Logout error:', error.message);
-      Alert.alert('An error occurred. Please try again.');
-      dispatch(logoutUserFailure('An error occurred'));
+      Alert.alert('An error occurred. Please try again.'); 
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -113,15 +121,44 @@ const ProfileScreen = () => {
         <Text style={styles.editButtonText}>Edit Profile</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity style={styles.logoutButton} onPress={toggleModal}>
         <MaterialIcon name="logout" size={24} color="#fff" />
         <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> 
+      <View style={{ flex: 1 }}>
+
+      <Modal isVisible={isModalVisible} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.textModal}>Apakah anda ingin keluar?</Text>
+          <View style={styles.buttonContainer}>
+            <ButtonPrimary title="Iya" onPress={handleLogout} />
+            <ButtonGray title="Tidak" onPress={toggleModal} />
+          </View>
+        </View>
+      </Modal>
+    </View>
     </View>
   );
-};
+}; 
 
 const styles = StyleSheet.create({
+  textModal:{
+    fontFamily:InterBold,
+    fontSize:20
+  },
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+    marginTop:20
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -173,7 +210,7 @@ const styles = StyleSheet.create({
     fontFamily: InterBold,
   },
   logoutButton: {
-    backgroundColor: '#ff6347',
+    backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

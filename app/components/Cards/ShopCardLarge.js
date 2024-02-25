@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginBottom: 16,
     backgroundColor: '#fff',
-    elevation: 2, // Add elevation for a shadow effect (Android)
+    elevation: 2, 
   },
   image: {
     width: '100%',

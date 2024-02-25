@@ -18,7 +18,7 @@ import BannerSlider from '../../components/Slider/BannerSlider';
 import ShopCard from '../../components/Cards/ShopCard';
 import ShopCardLarge from '../../components/Cards/ShopCardLarge';
 import {COLOR_PRIMARY} from '../../resources/colors';
-import {InterBold} from '../../resources/fonts';
+import {InterBold, InterMedium} from '../../resources/fonts';
 import CategoryItem from '../../components/Cards/CategoryItem';
 import TitleWithArrow from '../../components/TitleWithButtonRight/Title';
 import {useDispatch, useSelector} from 'react-redux';
@@ -33,13 +33,30 @@ import {
   fetchShopDataFailure,
 } from '../../redux/slices/ShopSlice';
 import {endpoint} from '../../api/endpoint';
+import {selectUserData} from '../../redux/selectors/userSelectors';
+import {selectCategoryData} from '../../redux/selectors/categorySelectors'
+import {showToast} from '../../resources/helper';
+import { fetchCategoryStart, fetchCategorySuccess, fetchCategoryFailure } from '../../redux/slices/categorySlice'; 
 
 const Home = ({navigation}) => {
-  const userData = useSelector(registerUser);
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isLoading, setisLoading] = useState(false);
+  const shopDatas = useSelector(state => state.shop.shops);
+  const userData = useSelector(selectUserData);
+  const categoryData = useSelector(selectCategoryData); 
+const [categoriesDatas, setcategoriesDatas] = useState() 
+
+  useEffect(() => {
+    fetchShopData();
+  }, [currentLocation]);
+
+  useEffect(() => {
+    // console.log('Category from redux',categoryData);
+    requestLocationPermission();
+    fetchCategoryData()
+  }, []);
 
   const requestLocationPermission = async () => {
     try {
@@ -58,7 +75,7 @@ const Home = ({navigation}) => {
           setCurrentLocation({latitude, longitude});
         },
         error => console.log('Error getting location:', error),
-        {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+        {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
       );
     } catch (error) {
       console.error('Error checking or requesting location permission:', error);
@@ -66,7 +83,7 @@ const Home = ({navigation}) => {
   };
 
   const fetchShopData = async () => {
-    if (!userData.payload?.user?.data?.data?.token || !currentLocation) {
+    if (!currentLocation) {
       return;
     }
     setisLoading(true);
@@ -76,7 +93,7 @@ const Home = ({navigation}) => {
         endpoint.getShop(currentLocation.latitude, currentLocation.longitude),
         {
           headers: {
-            Authorization: `Bearer ${userData.payload.user.data.data.token}`,
+            Authorization: `Bearer ${userData.data.token}`,
           },
         },
       );
@@ -88,21 +105,28 @@ const Home = ({navigation}) => {
     }
   };
 
-  // useEffect(() => {
-  //   requestLocationPermission();
-  // }, []);
+  const fetchCategoryData = async () => {
+    dispatch(fetchCategoryStart()); 
+    try {
+      const response = await axios.get(
+        endpoint.getCategories,
+        {
+          headers: {
+            Authorization: `Bearer ${userData.data.token}`,
+          },
+        },
+      );
+      // console.log(response.data.data);
+      setcategoriesDatas(response.data.data)
+      dispatch(fetchCategorySuccess(response.data.data)); 
+    } catch (error) {
+      dispatch(fetchCategoryFailure(error.message)); 
+    } finally {
+      setisLoading(false);
+    }
+  };
 
   // useEffect(() => {
-  //   fetchShopData();
-  // }, [dispatch, userData, currentLocation]);
-  useEffect(() => {
-    requestLocationPermission();
-    fetchShopData();
-  }, []);
-
-  const shopDatas = useSelector(state => state.shop.shops);
-  // useEffect(() => {
-  //   console.log('userrr', userData.payload.user.data.data.token);
   //   console.log('shop datas', shopDatas);
   // }, []);
 
@@ -112,57 +136,8 @@ const Home = ({navigation}) => {
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
   ];
 
-  const shopData = [
-    {
-      id: '1',
-      title: 'Geprek AA Mastrip',
-      subtitle: 'Jalan Mastrip no. 5 cindogo jember bondowoso',
-      image:
-        'https://images.bisnis.com/posts/2022/10/22/1590315/umkm_timur.jakarta.go.id.jpg',
-      isPopular: true,
-    },
-    {
-      id: '2',
-      title: 'Shop 2',
-      subtitle: 'Subtitle 2',
-      image:
-        'https://images.bisnis.com/posts/2022/10/22/1590315/umkm_timur.jakarta.go.id.jpg',
-      isPopular: false,
-    },
-  ];
-
-  const shopDataRekomendasi = [
-    {
-      title: 'Geprek AA Mastrip',
-      subtitle: 'Toko ayam geprek',
-      image:
-        'https://cdn1.katadata.co.id/media/images/thumb/2021/08/24/Menyulap_Eceng_Gondok_Menjadi_Kerjainan_Tangan_Bernilai_Jual_Tinggi-2021_08_24-10_59_37_3e15c01c7cbe682623f5a38efc0b84bc_960x640_thumb.jpg',
-      isHot: true,
-      address: 'Jalan situbondo no 5 cindogo tapen bondowoso',
-    },
-    {
-      title: 'Dapur Mama Ica',
-      subtitle: 'Toko Kelontong',
-      image:
-        'https://gobiz.co.id/pusat-pengetahuan/wp-content/uploads/2021/07/Farhan-Abas-Unsplash-UMKM-usaha-kecil-usaha-mikro-2.jpg',
-      isHot: false,
-      address: 'Jalan situbondo no 10 cindogo tapen bondowoso',
-    },
-  ];
-
   const [numColumns, setNumColumns] = useState(2);
-  const renderItemRekomendasi = ({item}) => (
-    <ShopCardVertical customStyle={styles.RekomendasiCardStyle} {...item} />
-  );
 
-  const categoriesData = [
-    {id: '1', name: 'Makanan'},
-    {id: '2', name: 'Jasa'},
-    {id: '3', name: 'Minuman'},
-    {id: '4', name: 'Snack'},
-    {id: '5', name: 'Aplikasi'},
-    // Add more categories as needed
-  ];
   const renderItem = ({item}) => (
     <CategoryItem
       category={item}
@@ -189,27 +164,15 @@ const Home = ({navigation}) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
         <View style={styles.appBar}>
-          <View style={styles.leftContainer}>
-            <Image
-              source={images.logoFirst}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
           <View style={styles.middleContainer}>
+          <Text style={styles.titleTextAppBar}>
+              Selamat Datang
+            </Text>
             <Text style={styles.locationText}>
-              Welcome {userData.payload.user.data.data.name}
+              {userData.data.name}
             </Text>
           </View>
-
-          <View style={styles.rightContainer}>
-            <Image
-              source={images.logoFirst}
-              style={styles.profileIcon}
-              resizeMode="contain"
-            />
-          </View>
+          <Text>asdas</Text>
         </View>
 
         <View>
@@ -221,7 +184,7 @@ const Home = ({navigation}) => {
         <View style={styles.containerCard}>
           <FlatList
             horizontal
-            data={categoriesData}
+            data={categoriesDatas}
             renderItem={renderItem}
             keyExtractor={item => item.id}
             showsHorizontalScrollIndicator={false}
@@ -237,22 +200,24 @@ const Home = ({navigation}) => {
               data={shopDatas}
               horizontal
               keyExtractor={item => item.id}
-              showsHorizontalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false} 
               renderItem={({item}) => (
                 <ShopCard
-                  title={item.name}
+                  title={item.name} 
                   subtitle={item.regency}
                   isLoading={isLoading}
                   image={item.thumbnail}
                   isPopular={item.isPopular}
-                  onPress={() => navigation.navigate('DetailShop')}
+                  onPress={() =>
+                    navigation.navigate('DetailShop', {id: item.id})
+                  }
                 />
               )}
             />
           </View>
         </View>
         <View style={styles.containerCard}>
-          <TitleWithArrow title={'Toko Baru'} />
+          <TitleWithArrow title={'Toko Sekitar'} />
           <View>
             <FlatList
               data={shopDatas}
@@ -268,22 +233,6 @@ const Home = ({navigation}) => {
                 />
               )}
             />
-          </View>
-          <View>
-            <TitleWithArrow
-              title={'Rekomendasi'}
-              onPressSeeAll={() => navigation.navigate('SearchShopScreen')}
-            />
-            <View>
-              <FlatList
-                data={shopDataRekomendasi}
-                showsVerticalScrollIndicator={false}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={renderItemRekomendasi}
-                numColumns={numColumns}
-                columnWrapperStyle={styles.columnWrapper}
-              />
-            </View>
           </View>
         </View>
       </ScrollView>
@@ -311,7 +260,7 @@ const styles = StyleSheet.create({
   },
   middleContainer: {
     flex: 2,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   rightContainer: {
     flex: 1,
@@ -323,7 +272,13 @@ const styles = StyleSheet.create({
   },
   locationText: {
     color: 'white',
+    fontSize: 20,
+    fontFamily:InterBold
+  },
+  titleTextAppBar: {
+    color: 'white',
     fontSize: 16,
+    fontFamily:InterMedium
   },
   profileIcon: {
     width: 30,

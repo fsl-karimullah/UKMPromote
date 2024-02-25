@@ -1,5 +1,13 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, View, Pressable, ScrollView, Linking} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  ScrollView,
+  Linking,
+  ActivityIndicator,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import IconLeft from 'react-native-vector-icons/AntDesign';
@@ -10,9 +18,54 @@ import ButtonIcon from '../../components/Buttons/ButtonIcon';
 import {COLOR_PRIMARY} from '../../resources/colors';
 import Modal from 'react-native-modal';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {endpoint} from '../../api/endpoint';
+import axios from 'axios';
+import {selectUserData} from '../../redux/selectors/userSelectors';
+import {useDispatch, useSelector} from 'react-redux';
+import {showToast} from '../../resources/helper';
+import {getShopDetailStart} from '../../redux/slices/ShopSlice';
 
-const DetailShop = ({navigation}) => {
+const DetailShop = ({navigation, route}) => {
+  const {id} = route.params;
+  const dispatch = useDispatch();
+
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [shopDetails, setshopDetails] = useState(null);
+
+  const userData = useSelector(selectUserData);
+
+  useEffect(() => {
+    fetchShopDetail();
+  }, []);
+
+  const fetchShopDetail = async () => {
+    try {
+      setLoading(true);
+
+      const headers = {
+        Authorization: `Bearer ${userData?.data?.token}`,
+      };
+
+      const response = await axios.get(`${endpoint.getShopDetail(id)}`, {
+        headers: headers,
+      });
+      console.log(response.data.data.schedule);
+
+      setshopDetails(response.data.data);
+
+      dispatch(getShopDetailStart(response.data.data));
+    } catch (error) {
+      console.error('Error fetching shop details:', error.message);
+      showToast(
+        'error',
+        'Perhatian',
+        'An error occurred while fetching shop details. Please try again.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const bannerImages = [
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
@@ -26,15 +79,65 @@ const DetailShop = ({navigation}) => {
   ];
 
   const handleInstagramPress = () => {
-    // Replace 'instagram_username' with the actual Instagram username
-    Linking.openURL('https://www.instagram.com/instagram_username/');
+    if (shopDetails.instagram) {
+      Linking.openURL(`https://www.instagram.com/${shopDetails.instagram}`);
+    } else {
+      showToast('error', 'Informasi', 'Bisnis ini tidak memiliki Instagram');
+    }
   };
 
   const handleWebsitePress = () => {
-    // Replace 'example.com' with the actual website URL
-    Linking.openURL('https://www.example.com');
+    if (shopDetails.website) {
+      let websiteURL = shopDetails.website.toLowerCase();
+      if (!websiteURL.startsWith('http://') && !websiteURL.startsWith('https://')) {
+        websiteURL = 'https://' + websiteURL;
+      }
+      Linking.openURL(websiteURL);
+    } else {
+      showToast('error', 'Informasi', 'Bisnis ini tidak memiliki website');
+    }
   };
 
+  const handleWhatsappPress = () => {
+    if (shopDetails.whatsapp) {
+      const whatsappNumber = shopDetails.whatsapp;
+      const message = encodeURIComponent(
+        'Hello! I would like to inquire about your shop.',
+      );
+      const waMeLink = `https://wa.me/${whatsappNumber}?text=${message}`;
+      Linking.openURL(waMeLink);
+    } else {
+      showToast(
+        'error',
+        'Informasi',
+        'Bisnis ini tidak memiliki nomor WhatsApp',
+      );
+    }
+  };
+  const openMaps = () => {
+    if (shopDetails.lat && shopDetails.lng) {
+      const latitude = shopDetails.lat;
+      const longitude = shopDetails.lng;
+      const label = encodeURIComponent(shopDetails.name);
+      const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+      Linking.openURL(url);
+    } else {
+      showToast(
+        'error',
+        'Informasi',
+        'Tidak ada data koordinat untuk toko ini',
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -43,18 +146,16 @@ const DetailShop = ({navigation}) => {
           onPress={() => navigation.goBack()}>
           <IconLeft name="caretleft" size={30} color={COLOR_PRIMARY} />
         </Pressable>
-
         <View style={styles.sliderContainer}>
           <ShopSlider
-            images={bannerImages}
+            images={shopDetails?.images}
             onClick={() => console.log('tes')}
           />
         </View>
-
         <View style={styles.tagContainer}>
           <Text style={[styles.tag, styles.popularTag]}>Jasa</Text>
           <View style={styles.iconContainer}>
-            <Pressable style={styles.locationIcon}>
+            <Pressable onPress={() => openMaps()} style={styles.locationIcon}>
               <Ionicons name="location-sharp" size={24} color="white" />
             </Pressable>
             <Pressable
@@ -67,7 +168,6 @@ const DetailShop = ({navigation}) => {
             </Pressable>
           </View>
         </View>
-
         <Modal
           isVisible={showModal}
           onBackdropPress={() => setShowModal(false)}
@@ -76,14 +176,16 @@ const DetailShop = ({navigation}) => {
           animationOut="slideOutDown"
           backdropTransitionOutTiming={0}
           backdropOpacity={0.5}>
-          <View style={styles.modalContent}>
+          <View style={styles.modalContent}> 
             <Text style={styles.modalTitle}>Jadwal Buka Toko</Text>
             <View style={styles.dropdownContainer}>
               <View style={styles.openingHoursContainer}>
-                {openingHours.map((item, index) => (
+                {shopDetails?.schedule.map((item, index) => (
                   <View key={index} style={styles.hoursContainer}>
                     <Text style={styles.dayText}>{item.day}:</Text>
-                    <Text style={styles.hoursText}>{item.hours}</Text>
+                    <Text style={styles.hoursText}>
+                      {item.opening_hour} - {item.closing_hour}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -97,13 +199,14 @@ const DetailShop = ({navigation}) => {
             </View>
           </View>
         </Modal>
-
         <View style={styles.detailsContainer}>
-          <Text style={styles.title}>Geprek AA</Text>
+          <Text style={styles.title}>{shopDetails?.name}</Text>
           <Text style={styles.addressText}>
-            Provinsi Jawa Timur, Kabupaten Jember, Kota Jember
+            {shopDetails?.province}, {shopDetails?.regency},{' '}
+            {shopDetails?.district}
           </Text>
-          <Text style={styles.addressText}>Jalan Jember No. 54 Mastrip</Text>
+
+          {/* <Text style={styles.addressText}>Jalan Jember No. 54 Mastrip</Text> */}
           <View style={styles.socialContainer}>
             <Pressable style={styles.button} onPress={handleWebsitePress}>
               <Icon name="web" size={24} color="white" />
@@ -115,25 +218,16 @@ const DetailShop = ({navigation}) => {
             </Pressable>
           </View>
 
-          <Text style={styles.description}>
-            Officia aliquip aliqua adipisicing laboris ipsum proident. Dolore
-            culpa deserunt commodo proident nulla. Ad commodo ea do officia
-            sint. Enim ullamco nostrud ipsum culpa quis eu. Aliquip in sit
-            cupidatat fugiat qui occaecat consequat enim anim consectetur.
-            Proident adipisicing amet deserunt cillum magna esse amet eu laboris
-            magna aliquip. Commodo et et sunt esse amet commodo exercitation
-            dolore qui cupidatat. Irure labore non pariatur esse esse ut anim
-            dolor fugiat dolor laboris nisi. Qui exercitation sint veniam dolore
-            veniam proident minim nostrud tempor. Magna non incididunt ut
-            officia do deserunt quis elit ex consectetur sunt velit
-            exercitation. Commodo non et qui velit nulla fugiat nostrud
-            adipisicing ipsum voluptate.
-          </Text>
+          <Text style={styles.description}>{shopDetails?.description}</Text>
         </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <ButtonIcon iconName="whatsapp" title="Hubungi" />
+        <ButtonIcon
+          onPress={handleWhatsappPress}
+          iconName="whatsapp"
+          title="Hubungi"
+        />
         <ButtonIcon iconName="star" title="Favorit" />
       </View>
     </SafeAreaView>
@@ -254,12 +348,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
     marginBottom: 16,
     color: '#333',
+    fontFamily:InterBold
   },
 
   dropdownContainer: {
@@ -271,12 +366,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dayText: {
-    fontWeight: 'bold',
     marginRight: 5,
     color: '#333',
+    fontFamily:InterBold
   },
   hoursText: {
     color: '#333',
+    fontFamily:InterMedium
   },
   closeButtonContainer: {
     position: 'absolute',
@@ -288,6 +384,11 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     alignSelf: 'flex-end',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {InterBold, InterMedium} from '../../resources/fonts';
+import {InterBold, InterMedium, InterRegular} from '../../resources/fonts';
 import images from '../../resources/images';
 import {
   heightPercentageToDP,
@@ -162,10 +162,12 @@ const styles = StyleSheet.create({
     color: '#7E7E7E',
     marginTop: 20,
     textAlign: 'center',
+    fontFamily:InterRegular
   },
   linkText: {
     color: 'blue',
     textDecorationLine: 'underline',
+    fontFamily:InterRegular
   },
   container: {
     flex: 1,
@@ -184,9 +186,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
     marginBottom: 20,
     color: '#333333',
+    fontFamily:InterBold
   },
   inputContainer: {
     width: '100%',
