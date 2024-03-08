@@ -1,41 +1,64 @@
 import React from 'react';
-import {View, Image, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {widthPercentageToDP} from 'react-native-responsive-screen';
+import {
+  View,
+  Image,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import {widthPercentageToDP, heightPercentageToDP} from 'react-native-responsive-screen';
 import {InterBold, InterMedium, InterRegular} from '../../resources/fonts';
-import { COLOR_PRIMARY, COLOR_RED_TRANSPARENT } from '../../resources/colors';
+import {COLOR_PRIMARY, COLOR_RED_TRANSPARENT} from '../../resources/colors';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const ShopCardVertical = ({
   title,
-  subtitle,
+  likes_count,
   image,
   isHot,
   address,
   onFavoritePress,
   onPress,
-  customStyle
-}) => (
-  <TouchableOpacity onPress={onPress} style={[styles.cardTouchable,customStyle]}>
-    <View style={styles.cardContainerVertical}>
-      <Image source={{uri: image}} style={styles.cardImageVertical} />
-      <View style={styles.cardTextContainerVertical}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        <Text
-          style={styles.cardSubtitle}
-          numberOfLines={2}
-          ellipsizeMode="tail">
-          {subtitle}
-        </Text>
-        <Text style={styles.cardAddress} numberOfLines={1}>{address}</Text>
-      </View>
-      <View style={styles.cardIconsContainer}>
-        {isHot && <Text style={styles.hotIcon}>Populer</Text>}
-        {/* <TouchableOpacity onPress={onFavoritePress}>
+  customStyle,
+  isLoading,
+}) => {
+  const imageHeight = heightPercentageToDP(15); 
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.cardTouchable, customStyle]}>
+      {isLoading ? (
+        <ActivityIndicator size={'large'} color={COLOR_PRIMARY} /> 
+      ) : (
+        <View style={styles.cardContainerVertical}>
+          <Image source={{uri: image}} style={[styles.cardImageVertical, {height: imageHeight}]} />
+          <View style={styles.cardTextContainerVertical}>
+            <Text style={styles.cardTitle}>{title}</Text>
+            <View style={styles.likesContainer}>
+              {likes_count >= 0 && (
+                <>
+                  <FontAwesome name="heart" color={COLOR_PRIMARY} size={12} />
+                  <Text style={styles.likesCount}>{likes_count}</Text>
+                </>
+              )}
+            </View>
+            <Text style={styles.cardAddress} numberOfLines={1}>
+              {address}
+            </Text>
+          </View>
+          <View style={styles.cardIconsContainer}>
+            {isHot && <Text style={styles.hotIcon}>Populer</Text>}
+            {/* <TouchableOpacity onPress={onFavoritePress}>
           <Text style={styles.favoriteIcon}>❤️</Text>
         </TouchableOpacity> */}
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+          </View>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   cardTouchable: {
@@ -55,7 +78,6 @@ const styles = StyleSheet.create({
   },
   cardImageVertical: {
     width: '100%',
-    height: 120,
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -67,11 +89,16 @@ const styles = StyleSheet.create({
     fontFamily: InterBold,
     color: '#333',
   },
-  cardSubtitle: {
+  likesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  likesCount: {
     fontSize: 12,
     color: COLOR_PRIMARY,
+    marginLeft: 5,
     fontFamily: InterBold,
-    marginVertical:5
   },
   cardAddress: {
     fontSize: 12,

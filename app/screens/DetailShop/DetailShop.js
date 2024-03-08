@@ -153,7 +153,7 @@ const DetailShop = ({navigation, route}) => {
           />
         </View>
         <View style={styles.tagContainer}>
-          <Text style={[styles.tag, styles.popularTag]}>Jasa</Text>
+          <Text style={[styles.tag, styles.popularTag]}>{shopDetails?.category}</Text>
           <View style={styles.iconContainer}>
             <Pressable onPress={() => openMaps()} style={styles.locationIcon}>
               <Ionicons name="location-sharp" size={24} color="white" />

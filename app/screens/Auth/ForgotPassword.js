@@ -27,88 +27,27 @@ import ButtonGray from '../../components/Buttons/ButtonGray';
 import {endpoint} from '../../api/endpoint';
 import axios from 'axios';
 import {showToast} from '../../resources/helper';
-import {registerUser, resetUser} from '../../redux/slices/userSlices';
 import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LoginScreen = ({navigation, registerUser}) => {
+const ForgotPassword = ({navigation}) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setisLoading] = useState(false);
-
-  const storeData = async (value) => {
-    try {
-      await AsyncStorage.setItem('userToken', value);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const handleLoginPress = () => {
-    if (!email || !password) {
-      showToast('error', 'Gagal', 'Email dan password harus diisi');
-      return;
-    }
-  
-    setisLoading(true);
-   
-    axios
-      .post(
-        endpoint.loginUser,
-        {
-          email: email,
-          password: password,
-        },
-        {
-          headers: {
-            Accept: 'application/json',
-          },
-        },
-      )
-      .then(response => {
-        registerUser(response.data);
-        // console.log(response.data.data.token);
-        showToast('success', 'Sukses', 'Selamat Datang');
-        storeData(response.data.data.token);
-        navigation.navigate('Tab');
-        setEmail('');
-        setPassword('');
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 422) {
-          showToast('error', 'Gagal', 'Email atau password salah');
-        } else {
-          console.log(error);
-          showToast('error', 'Gagal', 'Terjadi kesalahan saat login');
-        }
-      })
-      .finally(() => {
-        setisLoading(false);
-      });
-  };
-  
-
-  const handleCreateAccountPress = () => {
-    navigation.navigate('RegisterScreen');
-  };
-
-  const handleForgotPasswordPress = () => {
-    navigation.navigate('ForgotPasswordScreen')
-  };
+  const [isLoading, setisLoading] = useState(false)
+ 
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Ayo Support Brand Lokal</Text>
+          <Text style={styles.headerTitle}>Silahkan Masukkan Email</Text>
           <Text style={styles.headerSubtitle}>
-            Cari barang atau jasa yang anda butuhkan disini.
+            Masukkan email yang terdaftar dan aktif
           </Text>
         </View>
         <View style={styles.content}>
-          <Image source={images.LoginIlu} style={styles.illustratorImage} />
+          <Image source={images.ForgotPassword} style={styles.illustratorImage} />
 
-          <Text style={styles.introText}>Login</Text>
+          <Text style={styles.introText}>Reset Password</Text>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
@@ -117,22 +56,12 @@ const LoginScreen = ({navigation, registerUser}) => {
               value={email}
               onChangeText={text => setEmail(text)}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry={true}
-              value={password}
-              onChangeText={text => setPassword(text)}
-            />
-            <TouchableOpacity onPress={handleForgotPasswordPress}>
-              <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
-            </TouchableOpacity>
           </View>
-          <ButtonPrimary title="Masuk" onPress={handleLoginPress} isLoading={isLoading} />
+          <ButtonPrimary title="Kirim Email"  isLoading={isLoading} />
           <ButtonGray
           
-            title="Buat Akun Baru"
-            onPress={() => navigation.navigate('RegisterScreen')}
+            title="Kembali"
+            onPress={() => navigation.goBack()}
           /> 
         </View>
       </ScrollView>
@@ -236,8 +165,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapDispatchToProps = {
-  registerUser,
-};
 
-export default connect(null, mapDispatchToProps)(LoginScreen);
+
+export default ForgotPassword;

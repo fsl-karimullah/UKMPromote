@@ -6,7 +6,7 @@ import { COLOR_BLACK } from '../../resources/colors';
 import { InterMedium } from '../../resources/fonts';
 
 const CategoryItem = ({ category, active, onPress }) => {
-  const backgroundColor = active ? 'COLOR_PRIMARY' : 'transparent';
+  const backgroundColor = active ? 'COLOR_PRIMARY' : 'white';
 
   return (
     <TouchableOpacity
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     height: heightPercentageToDP(5),
     marginRight: 10,
     borderWidth: 1,
-    borderColor: 'lightgray',
+    borderColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,

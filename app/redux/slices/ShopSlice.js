@@ -4,6 +4,7 @@ const initialState = {
   loading: false,
   error: null,
   shops: [],
+  allShops: [],
   selectedShop: {
     data: null,
     loading: false, 
@@ -21,6 +22,10 @@ const shopSlice = createSlice({
     fetchShopDataSuccess(state, action) {
       state.loading = false;
       state.shops = action.payload;
+    },
+    fetchShopDataSuccessAll(state, action) {
+      state.loading = false;
+      state.allShops = action.payload;
     },
     fetchShopDataFailure(state, action) {
       state.loading = false;
@@ -43,6 +48,7 @@ const shopSlice = createSlice({
 export const {
   fetchShopDataStart,
   fetchShopDataSuccess,
+  fetchShopDataSuccessAll,
   fetchShopDataFailure,
   getShopDetailStart,
   getShopDetailSuccess,

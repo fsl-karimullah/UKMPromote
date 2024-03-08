@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.22.2",
     "@react-native-community/geolocation": "^3.1.0",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native": "^6.1.9",
@@ -30,6 +31,8 @@
     "react-native-shimmer": "^0.6.0",
     "react-native-toast-message": "^2.2.0",
     "react-native-vector-icons": "^10.0.3",
+    "react-native-webview": "^13.8.1",
+    "react-native-youtube-iframe": "^2.3.0",
     "react-redux": "^9.1.0",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "redux": "^5.0.1",

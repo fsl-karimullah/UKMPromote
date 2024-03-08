@@ -1,15 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 import Icon from 'react-native-vector-icons/FontAwesome5'; 
 import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_PRIMARY } from '../../resources/colors';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
-const ShopCard = ({ title, subtitle, image, isPopular, anotherData }) => {
+
+const ShopCard = ({ title, subtitle, image, isPopular, anotherData, onPress }) => {
   const hasLongAddress = subtitle.length > 30;
 
   return (
-    <View style={[styles.container, { borderBottomLeftRadius: hasLongAddress ? 8 : 8, borderBottomRightRadius: hasLongAddress ? 8 : 8 }]}>
+    <TouchableOpacity onPress={onPress} style={[styles.container, { borderBottomLeftRadius: hasLongAddress ? 8 : 8, borderBottomRightRadius: hasLongAddress ? 8 : 8 }]}>
       <Image source={{ uri: image }} style={styles.image} />
       <View style={styles.contentContainer}>
         {isPopular && (
@@ -19,13 +21,29 @@ const ShopCard = ({ title, subtitle, image, isPopular, anotherData }) => {
         )}
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
-        <Text style={styles.anotherData}>{anotherData}</Text>
+        <View style={styles.likesContainer}>
+          <FontAwesome5Icon name="heart" size={14} color={COLOR_PRIMARY} style={styles.heartIcon} />
+          <Text style={styles.likesCount}>{anotherData}</Text>
+        </View>
+
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  likesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  heartIcon: {
+    marginRight: 4,
+  },
+  likesCount: {
+    fontSize: 14,
+    color: COLOR_PRIMARY,
+    fontFamily: InterMedium,
+  },
   container: {
     width: widthPercentageToDP(60),
     borderRadius: 8,
@@ -39,6 +57,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: heightPercentageToDP(20),
     resizeMode: 'cover',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   contentContainer: {
     padding: 12,
@@ -64,6 +84,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
+    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+    borderRadius: 12,
+    padding: 4,
   },
 });
 

@@ -2,6 +2,7 @@ const initialState = {
   shops: [],
   loading: false,
   error: null,
+  allShops:[]
 };
 
 export default function shopReducer(state = initialState, action) {
@@ -17,6 +18,12 @@ export default function shopReducer(state = initialState, action) {
         ...state,
         loading: false,
         shops: action.payload,
+      };
+    case 'FETCH_SHOPS_SUCCESS_ALL':
+      return {
+        ...state,
+        loading: false,
+        allShops: action.payload,
       };
     case 'FETCH_SHOPS_FAILURE':
       return {

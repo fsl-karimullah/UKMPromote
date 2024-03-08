@@ -5,6 +5,7 @@ const images = {
     LoginIlu: require('../assets/images/illustration/login-new.png'),
     RegisterIlu: require('../assets/images/illustration/register-new.png'),
     BannerExample: require('../assets/images/banner/banner-example.png'),
+    ForgotPassword: require('../assets/images/illustration/forgot-pw.png'),
 
   };
   export default images;  

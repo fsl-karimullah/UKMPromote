@@ -21,6 +21,10 @@ import {useNavigation} from '@react-navigation/native';
 import Fav from '../screens/FavScreen/Fav';
 import Octicon from 'react-native-vector-icons/Octicons'
 import SplashScreen from '../screens/SplashScreen/SplashScreen';
+import EducationalDetailScreen from '../screens/DetailShop/EducationalDetailScreen';
+import ForgotPassword from '../screens/Auth/ForgotPassword';
+import NearbyScreen from '../screens/SearchShop/NearbyScreen';
+import EducationScreen from '../screens/Education/EducationScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -98,8 +102,6 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {!isLogin ? (
-          <>
             <Stack.Screen
               name="Intro"
               options={{
@@ -114,9 +116,6 @@ function App() {
                 headerTitle: 'Buat Akun Baru',
               }}
             />
-          </>
-        ) : (
-          <>
             <Stack.Screen
               name="Tab"
               component={MyTabs}
@@ -132,14 +131,40 @@ function App() {
               }}
             />
             <Stack.Screen
+              name="EducationalDetail"
+              component={EducationalDetailScreen}
+              options={{
+                headerTitle: 'Edukasi UMKM',
+              }}
+            />
+            <Stack.Screen
               name="SplashScreen"
               component={SplashScreen}
               options={{
                 headerShown: false,
               }}
             />
-          </>
-        )}
+            <Stack.Screen
+              name="ForgotPasswordScreen"
+              component={ForgotPassword}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="NearbyScreen"
+              component={NearbyScreen}
+              options={{
+                headerTitle: 'Bisnis Sekitar',
+              }}
+            />
+            <Stack.Screen
+              name="EducationalScreen"
+              component={EducationScreen}
+              options={{
+                headerTitle: 'Bisnis Sekitar',
+              }}
+            />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -5,10 +5,12 @@ export const endpoint = {
   logoutUser: `${url}/api/auth/logout`,
   getProvince: `${url}/api/provinces`,
   getCategories: `${url}/api/categories`,
+  searchShop:(value) => `${url}/api/shops?lat=0&lng=0&q=${value}`,
   getCities: (provinceId) => `${url}/api/cities?province_id=${provinceId}`,
   getDistrict: (cityId) => `${url}/api/districts?city_id=${cityId}`,
   getShop: (lat, lng) => `${url}/api/shops?lat=${lat}&lng=${lng}`,
-  getShopByFilter: (lat, lng,categoryId) => `${url}/api/shops?lat=${lat}&lng=${lng}&category_id=${categoryId}`,
+  getShopAll: (lat, lng) => `${url}/api/shops?with_geo=0`,
+  getShopByFilter: (lat, lng, categoryId) => `${url}/api/shops?lat=${lat}&lng=${lng}&category_id=${categoryId}`,
   getShopDetail: (id) => `${url}/api/shops/${id}`
 };
  
