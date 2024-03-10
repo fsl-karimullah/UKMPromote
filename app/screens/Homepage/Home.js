@@ -204,7 +204,7 @@ const Home = ({navigation}) => {
       title: 'Cara upload bisnis ke Brand-In ke Brand-in',
       description:
         'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis.',
-      imageSource: 'https://placekitten.com/200/200',
+      imageSource: 'https://i.ytimg.com/vi/25RD3_TE33s/maxresdefault.jpg',
       onPress: navigation =>
         navigation.navigate('EducationalDetail', {
           title: 'Belajar Basic Upload UMKM ke Brand-in',
@@ -216,15 +216,15 @@ const Home = ({navigation}) => {
     },
     {
       id: '2',
-      title: 'Cara Meningkatkan Branding UMKM',
-      description: 'Mempelajari cara meningkatkan Branding untuk umkm baru.',
-      imageSource: 'https://placekitten.com/200/200',
+      title: 'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
+      description: 'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
+      imageSource: 'https://i.ytimg.com/vi/1k21C-UR_8s/maxresdefault.jpg',
       onPress: navigation =>
         navigation.navigate('EducationalDetail', {
           title: 'Belajar Basic Upload UMKM ke Brand-in',
           description:
             'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis',
-          youtubeVideoId: '25RD3_TE33s',
+          youtubeVideoId: '1k21C-UR_8s',
           datePosted: Date.now(),
         }),
     },

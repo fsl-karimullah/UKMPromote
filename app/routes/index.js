@@ -25,6 +25,8 @@ import EducationalDetailScreen from '../screens/DetailShop/EducationalDetailScre
 import ForgotPassword from '../screens/Auth/ForgotPassword';
 import NearbyScreen from '../screens/SearchShop/NearbyScreen';
 import EducationScreen from '../screens/Education/EducationScreen';
+import FundingScreen from '../screens/Funding/FundingScreen';
+import FundingDetail from '../screens/Funding/FundingDetail';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -75,6 +77,17 @@ function MyTabs() {
           ),
         }}
         component={Fav}
+      />
+      <Tab.Screen
+        name="FundingScreen"
+        options={{
+          headerTitle: 'Para Investor Umkm',
+          tabBarLabel: 'Pendanaan',
+          tabBarIcon: ({color, size}) => (
+            <MaterialIcon name="money" color={color} size={size} />
+          ),
+        }}
+        component={FundingScreen}
       />
       <Tab.Screen
         name="ProfileScreen"
@@ -152,7 +165,7 @@ function App() {
               }}
             />
             <Stack.Screen
-              name="NearbyScreen"
+              name="NearbyScreen" 
               component={NearbyScreen}
               options={{
                 headerTitle: 'Bisnis Sekitar',
@@ -162,7 +175,14 @@ function App() {
               name="EducationalScreen"
               component={EducationScreen}
               options={{
-                headerTitle: 'Bisnis Sekitar',
+                headerTitle: 'Artikel dan Edukasi',
+              }}
+            />
+            <Stack.Screen
+              name="FundingDetailScreen"
+              component={FundingDetail}
+              options={{
+                headerTitle: 'Detail Investor',
               }}
             />
       </Stack.Navigator>

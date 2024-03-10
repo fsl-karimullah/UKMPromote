@@ -11,8 +11,8 @@ const EducationalCard = ({ title, description, imageSource, onPress }) => {
     <TouchableOpacity onPress={onPress} style={styles.container}>
       <Image source={{ uri: imageSource }} style={styles.image} />
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{description}</Text>
+        <Text numberOfLines={1} style={styles.title}>{title}</Text>
+        <Text numberOfLines={2} style={styles.description}>{description}</Text>
       </View>
     </TouchableOpacity>
   );
