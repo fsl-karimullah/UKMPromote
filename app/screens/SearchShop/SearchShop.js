@@ -35,6 +35,7 @@ import ShopCardVertical from '../../components/Cards/ShopCardVertical';
 import CategoryItem from '../../components/Cards/CategoryItem';
 import {COLOR_PRIMARY} from '../../resources/colors';
 import {InterBold} from '../../resources/fonts';
+import EmptyComponent from '../../components/EmptyComponent/EmptyComponent';
 
 const SearchShop = ({navigation}) => {
   const dispatch = useDispatch();
@@ -240,6 +241,7 @@ const SearchShop = ({navigation}) => {
         <ActivityIndicator size={'large'} color={COLOR_PRIMARY} />
       ) : (
         <FlatList
+        ListEmptyComponent={EmptyComponent}
           data={filteredShopDatas.length > 0 ? filteredShopDatas : shopDatas}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}

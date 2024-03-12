@@ -221,12 +221,12 @@ const Home = ({navigation}) => {
       imageSource: 'https://i.ytimg.com/vi/1k21C-UR_8s/maxresdefault.jpg',
       onPress: navigation =>
         navigation.navigate('EducationalDetail', {
-          title: 'Belajar Basic Upload UMKM ke Brand-in',
+          title: 'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
           description:
-            'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis',
+            'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
           youtubeVideoId: '1k21C-UR_8s',
           datePosted: Date.now(),
-        }),
+        }), 
     },
   ];
 

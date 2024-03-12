@@ -24,7 +24,7 @@ import {selectUserData} from '../../redux/selectors/userSelectors';
 import {useDispatch, useSelector} from 'react-redux';
 import {showToast} from '../../resources/helper';
 import {getShopDetailStart} from '../../redux/slices/ShopSlice';
-
+import { addFavoriteShop } from '../../redux/slices/favoriteShopsSlice';
 const DetailShop = ({navigation, route}) => {
   const {id} = route.params;
   const dispatch = useDispatch();
@@ -39,21 +39,17 @@ const DetailShop = ({navigation, route}) => {
     fetchShopDetail();
   }, []);
 
-  const fetchShopDetail = async () => {
+  const fetchShopDetail = async () => { 
     try {
       setLoading(true);
-
       const headers = {
         Authorization: `Bearer ${userData?.data?.token}`,
       };
-
       const response = await axios.get(`${endpoint.getShopDetail(id)}`, {
         headers: headers,
       });
-      console.log(response.data.data.schedule);
-
+      // console.log(response.data.data.schedule);
       setshopDetails(response.data.data);
-
       dispatch(getShopDetailStart(response.data.data));
     } catch (error) {
       console.error('Error fetching shop details:', error.message);
@@ -67,16 +63,35 @@ const DetailShop = ({navigation, route}) => {
     }
   };
 
-  const bannerImages = [
-    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
-    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
-    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
-  ];
+  const addShopFav = async () => { 
+    // console.log('asdasdsadsa',id);
+    try {
+      setLoading(true);
+      const headers = {
+        Authorization: `Bearer ${userData?.data?.token}`,
+      };
+      const response = await axios.post(`${endpoint.favouriteShop(id)}`, {
+        headers: headers,
+      }); 
+      console.log(response.data); 
+      
+      const shopDetails = response.data.data;
+  
+      dispatch(addFavoriteShop(shopDetails)); 
+  
+      showToast('success', 'Sukses', 'Berhasil ditambahkan ke favorit.');
+    } catch (error) {
+      console.error('Error adding shop to favorites:', error.message);
+      showToast(
+        'error',
+        'Perhatian', 
+        'Terdapat kesalahan, coba lagi nanti.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const openingHours = [
-    {day: 'Monday', hours: '08:00 - 18:00'},
-    {day: 'Tuesday', hours: '08:00 - 18:00'},
-  ];
 
   const handleInstagramPress = () => {
     if (shopDetails.instagram) {
@@ -125,7 +140,7 @@ const DetailShop = ({navigation, route}) => {
       showToast(
         'error',
         'Informasi',
-        'Tidak ada data koordinat untuk toko ini',
+        'Tidak ada data koordinat untuk toko ini, silahkan kontak lewat whatsaap',
       );
     }
   };
@@ -228,7 +243,7 @@ const DetailShop = ({navigation, route}) => {
           iconName="whatsapp"
           title="Hubungi"
         />
-        <ButtonIcon iconName="star" title="Favorit" />
+        <ButtonIcon iconName="star" title="Favorit" onPress={addShopFav} />
       </View>
     </SafeAreaView>
   );

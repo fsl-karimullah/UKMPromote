@@ -27,6 +27,7 @@ import NearbyScreen from '../screens/SearchShop/NearbyScreen';
 import EducationScreen from '../screens/Education/EducationScreen';
 import FundingScreen from '../screens/Funding/FundingScreen';
 import FundingDetail from '../screens/Funding/FundingDetail';
+import InformationScreen from '../screens/Auth/InformationScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -183,6 +184,15 @@ function App() {
               component={FundingDetail}
               options={{
                 headerTitle: 'Detail Investor',
+              }}
+            />
+            <Stack.Screen
+              name="InformationResetPassword"
+              component={InformationScreen}
+              options={{
+                headerTitle: 'Reset Password',
+                headerBackVisible:false,
+                headerTitleAlign:'center'
               }}
             />
       </Stack.Navigator>

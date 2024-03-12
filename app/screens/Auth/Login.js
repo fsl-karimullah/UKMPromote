@@ -65,7 +65,7 @@ const LoginScreen = ({navigation, registerUser}) => {
           },
         },
       )
-      .then(response => {
+      .then(response => { 
         registerUser(response.data);
         // console.log(response.data.data.token);
         showToast('success', 'Sukses', 'Selamat Datang');

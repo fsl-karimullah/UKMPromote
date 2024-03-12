@@ -32,8 +32,30 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ForgotPassword = ({navigation}) => {
   const [email, setEmail] = useState('');
-  const [isLoading, setisLoading] = useState(false)
- 
+  const [isLoading, setisLoading] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      showToast('error', 'Gagal', 'Email harus diisi');
+      return;
+    }
+    setisLoading(true);
+
+    try {
+      const response = await axios.post(endpoint.forgotPassword, {email});
+      console.log(response.data.email);
+      showToast('info', 'Informasi', response.data.email);
+      navigation.navigate('InformationResetPassword');
+    } catch (error) {
+      showToast(
+        'error',
+        'Gagal',
+        'Terjadi kesalahan, mohon masukkan email dengan benar.',
+      );
+    } finally {
+      setisLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,8 +67,10 @@ const ForgotPassword = ({navigation}) => {
           </Text>
         </View>
         <View style={styles.content}>
-          <Image source={images.ForgotPassword} style={styles.illustratorImage} />
-
+          <Image
+            source={images.ForgotPassword}
+            style={styles.illustratorImage}
+          />
           <Text style={styles.introText}>Reset Password</Text>
           <View style={styles.inputContainer}>
             <TextInput
@@ -57,12 +81,12 @@ const ForgotPassword = ({navigation}) => {
               onChangeText={text => setEmail(text)}
             />
           </View>
-          <ButtonPrimary title="Kirim Email"  isLoading={isLoading} />
-          <ButtonGray
-          
-            title="Kembali"
-            onPress={() => navigation.goBack()}
-          /> 
+          <ButtonPrimary
+            title="Kirim Email Reset Password"
+            isLoading={isLoading}
+            onPress={handleForgotPassword}
+          />
+          <ButtonGray title="Kembali" onPress={() => navigation.goBack()} />
         </View>
       </ScrollView>
       {/* <View style={styles.containerCopyright}>
@@ -86,8 +110,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     marginRight: 5,
-    fontFamily:InterBold,
-    color:'black'
+    fontFamily: InterBold,
+    color: 'black',
   },
   textBottom: {
     fontSize: 24,
@@ -98,8 +122,8 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 18,
     textAlign: 'center',
-    fontFamily:InterMedium,
-    color:'black'
+    fontFamily: InterMedium,
+    color: 'black',
   },
   content: {
     flex: 1,
@@ -164,7 +188,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-
 
 export default ForgotPassword;
