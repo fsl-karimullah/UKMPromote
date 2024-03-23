@@ -6,7 +6,7 @@ const FundingCard = ({ investorImage, investorProfile, investorPosition,onPress 
     <Pressable onPress={onPress} style={styles.card}>
       <Image source={{ uri: investorImage }} style={styles.image} />
       <View style={styles.content}>
-        <Text style={styles.profile}>{investorProfile}</Text>
+        <Text style={styles.profile} numberOfLines={1}>{investorProfile}</Text>
         <Text style={styles.position}>{investorPosition}</Text>
       </View>
     </Pressable>

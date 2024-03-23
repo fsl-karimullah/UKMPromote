@@ -24,7 +24,9 @@ import {selectUserData} from '../../redux/selectors/userSelectors';
 import {useDispatch, useSelector} from 'react-redux';
 import {showToast} from '../../resources/helper';
 import {getShopDetailStart} from '../../redux/slices/ShopSlice';
-import { addFavoriteShop } from '../../redux/slices/favoriteShopsSlice';
+import {addFavoriteShop} from '../../redux/slices/favoriteShopsSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const DetailShop = ({navigation, route}) => {
   const {id} = route.params;
   const dispatch = useDispatch();
@@ -35,11 +37,12 @@ const DetailShop = ({navigation, route}) => {
 
   const userData = useSelector(selectUserData);
 
+
   useEffect(() => {
     fetchShopDetail();
   }, []);
 
-  const fetchShopDetail = async () => { 
+  const fetchShopDetail = async () => {
     try {
       setLoading(true);
       const headers = {
@@ -63,35 +66,74 @@ const DetailShop = ({navigation, route}) => {
     }
   };
 
-  const addShopFav = async () => { 
-    // console.log('asdasdsadsa',id);
+  const addShopFav = async () => {
     try {
       setLoading(true);
       const headers = {
         Authorization: `Bearer ${userData?.data?.token}`,
+        'Content-Type': 'application/json',
       };
-      const response = await axios.post(`${endpoint.favouriteShop(id)}`, {
-        headers: headers,
-      }); 
-      console.log(response.data); 
-      
+
+      const response = await axios.post(
+        `${endpoint.favouriteShop()}`,
+        {shop_id: id},
+        {headers},
+      );
+
+      console.log(response.data);
+
       const shopDetails = response.data.data;
-  
-      dispatch(addFavoriteShop(shopDetails)); 
-  
+
+      dispatch(addFavoriteShop(shopDetails));
+
       showToast('success', 'Sukses', 'Berhasil ditambahkan ke favorit.');
     } catch (error) {
       console.error('Error adding shop to favorites:', error.message);
       showToast(
         'error',
-        'Perhatian', 
-        'Terdapat kesalahan, coba lagi nanti.',
+        'Perhatian',
+        'Terdapat kesalahan, Toko sudah ditambahkan ke favorit.',
       );
+
+      console.log(error.response);
     } finally {
       setLoading(false);
     }
   };
 
+  
+  const deleteShopFav = async () => {
+    try {
+      setLoading(true);
+      const headers = {
+        Authorization: `Bearer ${userData?.data?.token}`,
+        'Content-Type': 'application/json',
+      };
+
+      const response = await axios.delete(
+        `${endpoint.favouriteShop()}`,
+        {id},
+        {headers},
+      );
+
+      console.log(response.data);
+
+      const shopDetails = response.data.data;
+
+      showToast('success', 'Sukses', 'Berhasil dihapus dari favorit.');
+    } catch (error) {
+      console.error('Error remove shop from favorites:', error.message);
+      showToast(
+        'error',
+        'Perhatian',
+        'Terdapat kesalahan, Toko sudah ditambahkan ke favorit.',
+      );
+
+      console.log(error.response);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInstagramPress = () => {
     if (shopDetails.instagram) {
@@ -104,7 +146,10 @@ const DetailShop = ({navigation, route}) => {
   const handleWebsitePress = () => {
     if (shopDetails.website) {
       let websiteURL = shopDetails.website.toLowerCase();
-      if (!websiteURL.startsWith('http://') && !websiteURL.startsWith('https://')) {
+      if (
+        !websiteURL.startsWith('http://') &&
+        !websiteURL.startsWith('https://')
+      ) {
         websiteURL = 'https://' + websiteURL;
       }
       Linking.openURL(websiteURL);
@@ -117,7 +162,7 @@ const DetailShop = ({navigation, route}) => {
     if (shopDetails.whatsapp) {
       const whatsappNumber = shopDetails.whatsapp;
       const message = encodeURIComponent(
-        'Hello! I would like to inquire about your shop.',
+        `Halo ! Saya ${userData?.data?.name} ingin tau lebih banyak tentang toko anda.`,
       );
       const waMeLink = `https://wa.me/${whatsappNumber}?text=${message}`;
       Linking.openURL(waMeLink);
@@ -148,11 +193,11 @@ const DetailShop = ({navigation, route}) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={COLOR_PRIMARY} />
       </SafeAreaView>
     );
   }
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -168,7 +213,9 @@ const DetailShop = ({navigation, route}) => {
           />
         </View>
         <View style={styles.tagContainer}>
-          <Text style={[styles.tag, styles.popularTag]}>{shopDetails?.category}</Text>
+          <Text style={[styles.tag, styles.popularTag]}>
+            {shopDetails?.category}
+          </Text>
           <View style={styles.iconContainer}>
             <Pressable onPress={() => openMaps()} style={styles.locationIcon}>
               <Ionicons name="location-sharp" size={24} color="white" />
@@ -191,7 +238,7 @@ const DetailShop = ({navigation, route}) => {
           animationOut="slideOutDown"
           backdropTransitionOutTiming={0}
           backdropOpacity={0.5}>
-          <View style={styles.modalContent}> 
+          <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Jadwal Buka Toko</Text>
             <View style={styles.dropdownContainer}>
               <View style={styles.openingHoursContainer}>
@@ -243,10 +290,10 @@ const DetailShop = ({navigation, route}) => {
           iconName="whatsapp"
           title="Hubungi"
         />
-        <ButtonIcon iconName="star" title="Favorit" onPress={addShopFav} />
+        {shopDetails?.is_favorited ? <ButtonIcon customStyle={{fontSize:12}} iconName="star" title="Hapus dari Favorit" onPress={deleteShopFav} /> : <ButtonIcon iconName="star" title="Favorit" onPress={addShopFav} />}
       </View>
     </SafeAreaView>
-  );
+  ); 
 };
 
 const styles = StyleSheet.create({
@@ -363,13 +410,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    
   },
   modalTitle: {
     fontSize: 20,
     marginBottom: 16,
     color: '#333',
-    fontFamily:InterBold
+    fontFamily: InterBold,
   },
 
   dropdownContainer: {
@@ -383,11 +429,11 @@ const styles = StyleSheet.create({
   dayText: {
     marginRight: 5,
     color: '#333',
-    fontFamily:InterBold
+    fontFamily: InterBold,
   },
   hoursText: {
     color: '#333',
-    fontFamily:InterMedium
+    fontFamily: InterMedium,
   },
   closeButtonContainer: {
     position: 'absolute',

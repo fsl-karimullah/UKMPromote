@@ -2,36 +2,32 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
-import { COLOR_BLACK } from '../../resources/colors';
-import { InterMedium } from '../../resources/fonts';
+import { COLOR_BLACK, COLOR_PRIMARY } from '../../resources/colors';
+import { InterBold, InterMedium } from '../../resources/fonts';
 
 const CategoryItem = ({ category, active, onPress }) => {
   const backgroundColor = active ? 'COLOR_PRIMARY' : 'white';
+  const textDecoration = active ? 'underline' : 'none'; 
+  const textColor = active ? COLOR_PRIMARY : COLOR_BLACK; 
 
   return (
     <TouchableOpacity
-      style={[styles.categoryItem, { backgroundColor }]}
+      style={[styles.categoryItem]}
       onPress={() => onPress(category.id)}
     >
-      <Text style={styles.textCategory}>{category.name}</Text>
+      <Text style={[styles.textCategory,{color:textColor, textDecorationLine: textDecoration }]}>{category.name}</Text>
     </TouchableOpacity>
   );
 };
  
 const styles = StyleSheet.create({
   categoryItem: {
-    width: widthPercentageToDP(30),
-    height: heightPercentageToDP(5),
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: 'black',
-    justifyContent: 'center',
+    marginRight: 30,
     alignItems: 'center',
-    borderRadius: 10,
   },
   textCategory:{
-    color:COLOR_BLACK,
-    fontFamily:InterMedium
+    fontFamily:InterBold,
+    fontSize:15
   }
 });
 

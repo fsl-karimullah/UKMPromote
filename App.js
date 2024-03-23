@@ -9,11 +9,11 @@ import store from './app/redux/configureStore';
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setShowSplash(false); 
-    }, 2000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setShowSplash(false); 
+  //   }, 2000);
+  // }, []);
 
   return (
     <Provider store={store}>
@@ -23,11 +23,8 @@ const App = () => {
         backgroundColor="transparent"
         translucent={true}
       />
-      {showSplash ? ( 
-        <SplashScreen />
-      ) : (
         <Routes /> 
-      )}
+      
       <Toast />
     </Provider>
   );

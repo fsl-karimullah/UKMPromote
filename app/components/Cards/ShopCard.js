@@ -30,7 +30,7 @@ const ShopCard = ({title, subtitle, image, isPopular, onPress, isLoading}) => {
                 <Icon name="fire" size={30} color={COLOR_PRIMARY} />
               </View>
             )}
-            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.title} numberOfLines={1}>{title}</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
           </Pressable>
         </ImageBackground>

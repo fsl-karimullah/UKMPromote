@@ -19,7 +19,7 @@ const ShopCard = ({ title, subtitle, image, isPopular, anotherData, onPress }) =
             <Icon name="fire" size={30} color={COLOR_PRIMARY} />
           </View>
         )}
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
         <View style={styles.likesContainer}>
           <FontAwesome5Icon name="heart" size={14} color={COLOR_PRIMARY} style={styles.heartIcon} />

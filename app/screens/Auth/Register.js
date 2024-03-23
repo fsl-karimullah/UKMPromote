@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,27 +9,30 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {InterBold, InterMedium, InterRegular} from '../../resources/fonts';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { InterBold, InterMedium, InterRegular } from '../../resources/fonts';
 import images from '../../resources/images';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import {COLOR_PRIMARY} from '../../resources/colors';
+import { COLOR_PRIMARY } from '../../resources/colors';
 import axios from 'axios';
-import {endpoint} from '../../api/endpoint';
-import {showToast} from '../../resources/helper';
-import {registerUser, resetUser} from '../../redux/slices/userSlices';
-import {connect} from 'react-redux';
+import { endpoint } from '../../api/endpoint';
+import { showToast } from '../../resources/helper';
+import { registerUser, resetUser } from '../../redux/slices/userSlices';
+import { connect } from 'react-redux';
 import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Register = ({registerUser}) => {
+const Register = ({ registerUser, navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [isLoadingButton, setisLoadingButton] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmationPassword, setShowConfirmationPassword] = useState(false);
 
   const isEmailValid = email => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -94,9 +97,11 @@ const Register = ({registerUser}) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
-        contentContainerStyle={{flexGrow: 1}}
+        contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled">
-        <KeyboardAvoidingView style={styles.innerContainer} behavior="padding">
+        <View
+          style={styles.innerContainer}
+          behavior="padding">
           <Image source={images.RegisterIlu} style={styles.illuImg} />
           <Text style={styles.title}>Daftar</Text>
 
@@ -116,24 +121,46 @@ const Register = ({registerUser}) => {
               value={email}
               onChangeText={text => setEmail(text)}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry={true}
-              placeholderTextColor="#7E7E7E"
-              value={password}
-              onChangeText={text => setPassword(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              secureTextEntry={true}
-              placeholderTextColor="#7E7E7E"
-              value={passwordConfirmation}
-              onChangeText={text => setPasswordConfirmation(text)}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                secureTextEntry={!showPassword}
+                placeholderTextColor="#7E7E7E"
+                value={password}
+                onChangeText={text => setPassword(text)}
+              />
+              <TouchableOpacity
+                style={styles.toggleEyeIcon}
+                onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Konfirmasi Password"
+                secureTextEntry={!showConfirmationPassword}
+                placeholderTextColor="#7E7E7E"
+                value={passwordConfirmation}
+                onChangeText={text => setPasswordConfirmation(text)}
+              />
+              <TouchableOpacity
+                style={styles.toggleEyeIcon}
+                onPress={() => setShowConfirmationPassword(!showConfirmationPassword)}>
+                <Ionicons
+                  name={showConfirmationPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={{width: widthPercentageToDP(90)}}>
+          <View style={{ width: widthPercentageToDP(90) }}>
             <ButtonPrimary
               title={'Daftar'}
               onPress={handleRegisterPress}
@@ -150,7 +177,7 @@ const Register = ({registerUser}) => {
               Privacy Policy
             </Text>
           </Text>
-        </KeyboardAvoidingView>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -162,12 +189,12 @@ const styles = StyleSheet.create({
     color: '#7E7E7E',
     marginTop: 20,
     textAlign: 'center',
-    fontFamily:InterRegular
+    fontFamily: InterRegular
   },
   linkText: {
     color: 'blue',
     textDecorationLine: 'underline',
-    fontFamily:InterRegular
+    fontFamily: InterRegular
   },
   container: {
     flex: 1,
@@ -188,7 +215,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
     color: '#333333',
-    fontFamily:InterBold
+    fontFamily: InterBold
   },
   inputContainer: {
     width: '100%',
@@ -203,6 +230,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: '#333333',
     fontFamily: InterMedium,
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#7E7E7E',
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingHorizontal: 15,
+    color: '#333333',
+    fontFamily: InterMedium,
+  },
+  toggleEyeIcon: {
+    position: 'absolute',
+    top: 14,
+    right: 16,
   },
 });
 

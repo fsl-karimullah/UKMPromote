@@ -8,6 +8,7 @@ const images = {
     ForgotPassword: require('../assets/images/illustration/forgot-pw.png'),
     EmptyImage: require('../assets/images/illustration/empty.png'),
     InfoEmail: require('../assets/images/illustration/info-email.png'),
+    ComingSoon: require('../assets/images/illustration/coming-soon.png'),
 
   };
   export default images;  

@@ -4,7 +4,7 @@ import {COLOR_PRIMARY} from '../../resources/colors';
 import {InterBold} from '../../resources/fonts';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
-const ButtonIcon = ({title, onPress, iconName}) => {
+const ButtonIcon = ({title, onPress, iconName,customStyle, customStyleIcon}) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.loginButton} onPress={onPress}>
@@ -14,7 +14,7 @@ const ButtonIcon = ({title, onPress, iconName}) => {
           color="white"
           style={{marginRight: 15,alignSelf:'center'}}
         />
-        <Text style={styles.buttonText}>{title}</Text>
+        <Text style={[styles.buttonText, customStyle]}>{title}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontFamily: InterBold,
+    alignSelf:'center'
   },
   container:{
     width:widthPercentageToDP(40),

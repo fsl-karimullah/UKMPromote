@@ -48,8 +48,10 @@ import {
   fetchCategoryFailure,
 } from '../../redux/slices/categorySlice';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import EducationalCard from '../../components/Cards/EducationalCards';
 import SmallEducationalCard from '../../components/Cards/SmallEducationalCard';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
@@ -61,62 +63,70 @@ const Home = ({navigation}) => {
   const userData = useSelector(selectUserData);
   const categoryData = useSelector(selectCategoryData);
   const [categoriesDatas, setcategoriesDatas] = useState();
-  const [userToken, setUserToken] = useState(null);
+  const [userToken, setUserToken] = useState();
+  const [isAcceptLocation, setisAcceptLocation] = useState(false);
 
-  // useEffect(() => {
-  //   const checkTokenValidity = async () => {
-  //     try {
-  //       const storedUserToken = await AsyncStorage.getItem('userToken');
+  const menuData = [
+    {id: '1', title: 'Kelas Bisnis', icon: 'book', route: 'ComingSoonScreen'},
+    {
+      id: '2',
+      title: 'Konsultasi Bisnis',
+      icon: 'handshake',
+      route: 'ComingSoonScreen',
+    },
+    {
+      id: '3',
+      title: 'Event Brand-in',
+      icon: 'calendar-alt',
+      route: 'ComingSoonScreen',
+    },
+  ];
 
-  //       if (storedUserToken) {
-  //         const isTokenValid = await yourCheckTokenValidityFunction(storedUserToken);
-
-  //         if (isTokenValid) {
-  //           setUserToken(storedUserToken);
-  //         } else {
-  //           navigation.replace('Login');
-  //         }
-  //       } else {
-  //         navigation.replace('Login');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error checking token validity:', error);
-  //     }
-  //   };
-
-  //   checkTokenValidity();
-  // }, [navigation]);
-
+  const getTokenData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userToken');
+      if (value !== null) {
+        setUserToken(value);
+        console.log('Home Token', value);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
   useEffect(() => {
-    fetchShopData();
-    fetchShopDataAll();
-    // console.log('allshops',shopDatasAll);
-  }, [currentLocation]);
-
-  useEffect(() => {
+    getTokenData();
     requestLocationPermission();
   }, []);
 
   useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Perhatian', 'Apakah anda ingin keluar ?', [
-        {
-          text: 'Cancel',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {text: 'YES', onPress: () => BackHandler.exitApp()},
-      ]);
-      return true;
-    };
+    console.log('Token after Login', userToken);
+  }, [userToken]);
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
+  useEffect(() => {
+    fetchShopData();
+    fetchShopDataAll();
+  }, [currentLocation]);
 
-    return () => backHandler.remove();
-  }, []);
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     Alert.alert('Perhatian', 'Apakah anda ingin keluar ?', [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => null,
+  //         style: 'cancel',
+  //       },
+  //       {text: 'YES', onPress: () => BackHandler.exitApp()},
+  //     ]);
+  //     return true;
+  //   };
+
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction,
+  //   );
+
+  //   return () => backHandler.remove();
+  // }, []);
 
   const requestLocationPermission = async () => {
     try {
@@ -125,7 +135,8 @@ const Home = ({navigation}) => {
         const result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
         if (result !== RESULTS.GRANTED) {
           console.log('Location permission denied');
-          showToast('warning', 'Perijinan lokasi ditolak');
+          showToast('error', 'Perhatian','Perijinan lokasi ditolak');
+          setisAcceptLocation(false);
           return;
         }
       }
@@ -135,8 +146,9 @@ const Home = ({navigation}) => {
           setCurrentLocation({latitude, longitude});
         },
         error => console.log('Error getting location:', error),
-        // {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
+        {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
       );
+      setisAcceptLocation(true);
     } catch (error) {
       console.error('Error checking or requesting location permission:', error);
     }
@@ -153,7 +165,7 @@ const Home = ({navigation}) => {
         endpoint.getShop(currentLocation.latitude, currentLocation.longitude),
         {
           headers: {
-            Authorization: `Bearer ${userData.data.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         },
       );
@@ -169,19 +181,13 @@ const Home = ({navigation}) => {
     setisLoading(true);
     dispatch(fetchShopDataStart());
     try {
-      const response = await axios.get(
-        endpoint.getShopAll(
-          currentLocation.latitude,
-          currentLocation.longitude,
-        ),
-        {
-          headers: {
-            Authorization: `Bearer ${userData.data.token}`,
-          },
+      const response = await axios.get(endpoint.getShopAll(), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
         },
-      );
+      });
       dispatch(fetchShopDataSuccessAll(response.data.data));
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
     } finally {
@@ -216,17 +222,20 @@ const Home = ({navigation}) => {
     },
     {
       id: '2',
-      title: 'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
-      description: 'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
+      title:
+        'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
+      description:
+        'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
       imageSource: 'https://i.ytimg.com/vi/1k21C-UR_8s/maxresdefault.jpg',
       onPress: navigation =>
         navigation.navigate('EducationalDetail', {
-          title: 'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
+          title:
+            'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
           description:
             'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
           youtubeVideoId: '1k21C-UR_8s',
           datePosted: Date.now(),
-        }), 
+        }),
     },
   ];
 
@@ -237,6 +246,17 @@ const Home = ({navigation}) => {
       category={item}
       onPress={() => console.log('category pressed')}
     />
+  );
+  const onSelectMenu = route => {
+    navigation.navigate(route);
+  };
+  const renderItemMenu = ({item}) => (
+    <Pressable onPress={() => onSelectMenu(item.route)} style={styles.menuItem}>
+      <View style={styles.iconContainer}>
+        <FontAwesome5 name={item.icon} size={24} color={'white'} />
+      </View>
+      <Text style={styles.menuText}>{item.title}</Text>
+    </Pressable>
   );
 
   const onRefresh = async () => {
@@ -271,6 +291,17 @@ const Home = ({navigation}) => {
           <BannerSlider
             images={bannerImages}
             onClick={() => console.log('tes')}
+          />
+        </View>
+
+        <View style={styles.containerMenu}>
+          <FlatList
+            data={menuData}
+            renderItem={renderItemMenu}
+            keyExtractor={item => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
           />
         </View>
 
@@ -311,29 +342,38 @@ const Home = ({navigation}) => {
           />
           {isLoading ? (
             <ActivityIndicator size={'large'} color={COLOR_PRIMARY} />
-          ) : (
-            <View>
-              <FlatList
-                data={shopDatas}
-                horizontal
-                keyExtractor={item => item.id}
-                showsHorizontalScrollIndicator={false}
-                renderItem={({item}) => (
-                  <ShopCardLarge
-                    title={item.name}
-                    subtitle={item.regency}
-                    anotherData={item.likes_count}
-                    image={item.thumbnail}
-                    isPopular={item.isPopular}
-                    onPress={() =>
-                      navigation.navigate('DetailShop', {id: item.id})
-                    }
-                  />
-                )}
+          ) : isAcceptLocation !== true ? (
+            <View style={styles.permissionDeniedContainer}>
+              <MaterialCommunityIcons
+                name="alert-circle-outline"
+                style={styles.warningIcon}
               />
+              <Text style={styles.permissionDeniedText}>
+                Perijinan lokasi ditolak
+              </Text>
             </View>
+          ) : (
+            <FlatList
+              data={shopDatas}
+              horizontal
+              keyExtractor={item => item.id}
+              showsHorizontalScrollIndicator={false}
+              renderItem={({item}) => (
+                <ShopCardLarge
+                  title={item.name}
+                  subtitle={item.regency}
+                  anotherData={item.likes_count}
+                  image={item.thumbnail}
+                  isPopular={item.isPopular}
+                  onPress={() =>
+                    navigation.navigate('DetailShop', {id: item.id})
+                  }
+                />
+              )}
+            />
           )}
         </View>
+
         <View style={styles.containerCard}>
           <TitleWithArrow
             title={'Artikel & Edukasi'}
@@ -362,6 +402,22 @@ const Home = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  permissionDeniedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
+  permissionDeniedText: {
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLOR_PRIMARY, 
+  },
+  warningIcon: {
+    color: COLOR_PRIMARY, 
+    fontSize: 24,
+  },
   container: {
     flex: 1,
     // paddingBottom:heightPercentageToDP(2)
@@ -413,6 +469,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   RekomendasiCardStyle: {},
+  containerMenu: {
+    paddingVertical: 20,
+  },
+  listContainer: {
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    backgroundColor: COLOR_PRIMARY,
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuItem: {
+    alignItems: 'center',
+    marginHorizontal: 20,
+  },
+  menuText: {
+    marginTop: 10,
+    color: COLOR_PRIMARY,
+    fontFamily: InterBold,
+  },
 });
 
 export default Home;

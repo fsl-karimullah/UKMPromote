@@ -8,6 +8,7 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  TouchableOpacity, // Import TouchableOpacity
 } from 'react-native';
 import Modal from 'react-native-modal';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -36,6 +37,7 @@ import CategoryItem from '../../components/Cards/CategoryItem';
 import {COLOR_PRIMARY} from '../../resources/colors';
 import {InterBold} from '../../resources/fonts';
 import EmptyComponent from '../../components/EmptyComponent/EmptyComponent';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const SearchShop = ({navigation}) => {
   const dispatch = useDispatch();
@@ -55,19 +57,13 @@ const SearchShop = ({navigation}) => {
   const [searchValue, setsearchValue] = useState();
   const [filteredShopDatas, setFilteredShopDatas] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchShopData();
-    setsearchValue(null)
-    setRefreshing(false);
-  };
- 
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
+
   useEffect(() => {
     fetchShopData();
   }, [currentLocation]);
 
   useEffect(() => {
-    // console.log(userData.data.data.token);
     fetchCategoryData();
     requestLocationPermission();
   }, []);
@@ -78,8 +74,7 @@ const SearchShop = ({navigation}) => {
       if (status !== RESULTS.GRANTED) {
         const result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
         if (result !== RESULTS.GRANTED) {
-          // console.log('Location permission denied');
-          showToast('warning', 'Perijinan lokasi ditolak');
+          showToast('error', 'Perhatian','Perijinan lokasi ditolak');
           return;
         }
       }
@@ -89,10 +84,33 @@ const SearchShop = ({navigation}) => {
           setCurrentLocation({latitude, longitude});
         },
         error => console.log('Error getting location:', error),
-        // {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
       );
     } catch (error) {
       console.error('Error checking or requesting location permission:', error);
+    }
+  };
+
+  const searchAction = async value => {
+    if (!currentLocation) {
+      return;
+    }
+    setisLoading(true);
+    try {
+      const response = await axios.get(
+        endpoint.searchShop(
+          value,
+        ),
+        {
+          headers: {
+            Authorization: `Bearer ${userData.data.data.token}`,
+          },
+        },
+      );
+      setFilteredShopDatas(response.data.data);
+    } catch (error) {
+      console.log('category error', error);
+    } finally {
+      setisLoading(false);
     }
   };
 
@@ -120,7 +138,8 @@ const SearchShop = ({navigation}) => {
       setisLoading(false);
     }
   };
-  
+ 
+
   const fetchShopDataByFilter = async categoryId => {
     if (!currentLocation) {
       return;
@@ -149,7 +168,6 @@ const SearchShop = ({navigation}) => {
       setisLoading(false);
     }
   };
-
   const fetchCategoryData = async () => {
     dispatch(fetchCategoryStart());
     try {
@@ -169,24 +187,6 @@ const SearchShop = ({navigation}) => {
       setisLoading(false);
     }
   };
-
-  const searchAction = async value => {
-    setisLoading(true);
-    try {
-      const response = await axios.get(endpoint.searchShop(value), {
-        headers: {
-          Authorization: `Bearer ${userData.data.data.token}`,
-        },
-      });
-      console.log(response.data.data);
-      setFilteredShopDatas(response.data.data);
-    } catch (error) {
-      console.log('category error', error);
-    } finally {
-      setisLoading(false);
-    }
-  };
-
   const renderItem = ({item}) => (
     <ShopCardVertical
       title={item.name}
@@ -200,13 +200,31 @@ const SearchShop = ({navigation}) => {
   const renderItemCategory = ({item}) => (
     <CategoryItem
       category={item}
+      active={activeCategoryId === item.id}
       onPress={() => handleCategoryPress(item.id)}
     />
   );
 
   const handleCategoryPress = categoryId => {
     fetchShopDataByFilter(categoryId);
-    // console.log('test');
+    setActiveCategoryId(categoryId);
+  };
+
+  const resetFilter = () => {
+    setRefreshing(true);
+    fetchShopData();
+    setsearchValue(null);
+    setRefreshing(false);
+    setActiveCategoryId(null);
+    searchAction(searchValue);
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchShopData();
+    setsearchValue(null);
+    setRefreshing(false);
+    setActiveCategoryId(null);
   };
   return (
     <View style={styles.container}>
@@ -214,7 +232,7 @@ const SearchShop = ({navigation}) => {
         <View style={styles.searchInputContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search for products or services"
+            placeholder="Cari produk dan jasa yang anda inginkan"
             placeholderTextColor="#A0A0A0"
             value={searchValue}
             onChangeText={text => setsearchValue(text)}
@@ -241,7 +259,7 @@ const SearchShop = ({navigation}) => {
         <ActivityIndicator size={'large'} color={COLOR_PRIMARY} />
       ) : (
         <FlatList
-        ListEmptyComponent={EmptyComponent}
+          ListEmptyComponent={EmptyComponent}
           data={filteredShopDatas.length > 0 ? filteredShopDatas : shopDatas}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
@@ -269,16 +287,27 @@ const SearchShop = ({navigation}) => {
           </View>
         </View>
       </Modal>
+
+      <TouchableOpacity style={styles.resetFilterButton} onPress={resetFilter}>
+        <Text style={styles.resetFilterButtonText}>Reset Filter</Text>
+        <Icon
+          name="refresh"
+          size={20}
+          color="white"
+          style={styles.resetFilterButtonIcon}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   searchBarContainer: {
-    marginBottom: 16,
+    marginTop: 10,
   },
   searchInputContainer: {
     flexDirection: 'row',
@@ -287,7 +316,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderWidth: 1,
     borderRadius: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     fontSize: 16,
     backgroundColor: '#FFFFFF',
     elevation: 2,
@@ -305,7 +334,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
   },
   filterContainer: {
@@ -341,11 +370,26 @@ const styles = StyleSheet.create({
   containerCategory: {
     marginVertical: 10,
   },
+  resetFilterButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: COLOR_PRIMARY,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  resetFilterButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: InterBold,
+  },
+  resetFilterButtonIcon: {
+    marginLeft: 10,
+    alignSelf:'center'
+  },
 });
 
 export default SearchShop;
-
-
-
-
-

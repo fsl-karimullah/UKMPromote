@@ -1,5 +1,3 @@
-// Card.js
-
 import React from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/Octicons';
@@ -22,10 +20,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
-    overflow: 'hidden', // To clip the image within the border-radius
+    overflow: 'hidden', 
     margin: 8,
     backgroundColor: '#fff',
-    elevation: 2, // for Android shadow
+    elevation: 2,
   },
   cardImage: {
     height: 150,

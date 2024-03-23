@@ -35,7 +35,7 @@ const ShopCardVertical = ({
         <View style={styles.cardContainerVertical}>
           <Image source={{uri: image}} style={[styles.cardImageVertical, {height: imageHeight}]} />
           <View style={styles.cardTextContainerVertical}>
-            <Text style={styles.cardTitle}>{title}</Text>
+            <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
             <View style={styles.likesContainer}>
               {likes_count >= 0 && (
                 <>

@@ -8,8 +8,10 @@ import {
   TextInput,
   Alert,
   Button,
+  Pressable,
 } from 'react-native';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLOR_PRIMARY} from '../../resources/colors';
@@ -26,20 +28,27 @@ import {
 } from '../../redux/slices/authSlice';
 import ButtonIcon from '../../components/Buttons/ButtonIcon';
 import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
+import { check, request, PERMISSIONS } from 'react-native-permissions';
+import * as ImagePicker from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const ProfileScreen = ({navigation}) => {
   const dispatch = useDispatch();
+  const [showModal, setShowModal] = useState(false);
   const userData = useSelector(state => state.user);
   const [username, setUsername] = useState(userData.data.data.name);
   const [email, setEmail] = useState(userData.data.data.email);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [profile, setProfile] = useState([]);
+  const [Avatar, setAvatar] = useState()
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
 
   useEffect(() => {
-    console.log(userData.data.data.token);
+    getProfile();
   }, []);
 
   const handleUsernameChange = text => {
@@ -54,6 +63,14 @@ const ProfileScreen = ({navigation}) => {
     console.log('Edit Profile clicked!');
   };
 
+  const removeValue = async () => {
+  try {
+    await AsyncStorage.removeItem('userToken')
+  } catch(e) {
+    console.log(e);
+  }
+
+}
   const handleLogout = async () => {
     try {
       const response = await axios.get(endpoint.logoutUser, {
@@ -63,8 +80,10 @@ const ProfileScreen = ({navigation}) => {
       });
 
       if (response.status === 200) {
+        removeValue()
+        await AsyncStorage.setItem('isLoggedIn', 'false'); 
         console.log('success');
-        navigation.popToTop();
+        navigation.pop();
       } else {
         console.error('Logout failed:', response.status, response.statusText);
         Alert.alert('Logout failed. Please try again.');
@@ -75,23 +94,147 @@ const ProfileScreen = ({navigation}) => {
     }
   };
 
+  const getProfile = async () => {
+    try {
+      const response = await axios.get(endpoint.updateProfile, {
+        headers: {
+          Authorization: `Bearer ${userData.data.data.token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        console.log(response.data.data);
+        setProfile(response.data.data);
+        setAvatar(response.data.data.avatar)
+      } else {
+        console.error('Logout failed:', response.status, response.statusText);
+        Alert.alert('Logout failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Logout error:', error.message);
+      Alert.alert('An error occurred. Please try again.');
+    }
+  };
+
+  const handleUploadPress = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibrary({
+        mediaType: 'photo',
+        quality: 1,
+      });
+
+      if (!result.didCancel) {
+        console.log('Selected Image:', result.uri); 
+        setAvatar(result.uri)
+      }
+    } catch (error) {
+      console.error('ImagePicker Error:', error);
+    }
+  };
+
+  const handleCameraPress = async () => {
+    try {
+      const cameraPermission = await check(
+        Platform.select({
+          ios: PERMISSIONS.IOS.CAMERA,
+          android: PERMISSIONS.ANDROID.CAMERA,
+        })
+      );
+
+      if (cameraPermission === 'granted') {
+        const result = await ImagePicker.launchCamera({
+          mediaType: 'photo',
+          quality: 1,
+        });
+
+        if (!result.didCancel) {
+          console.log('Captured Image:', result.uri);
+          setAvatar(result.uri)
+        }
+      } else {
+        const requestPermissionResult = await request(
+          Platform.select({
+            ios: PERMISSIONS.IOS.CAMERA,
+            android: PERMISSIONS.ANDROID.CAMERA,
+          })
+        );
+
+        if (requestPermissionResult === 'granted') {
+          handleCameraPress();
+        } else {
+          Alert.alert(
+            'Permission Denied',
+            'You need to grant camera permission to use this feature.'
+          );
+        }
+      }
+    } catch (error) {
+      console.error('ImagePicker Error:', error);
+    }
+  };
   return (
     <View style={styles.container}>
-      {/* <Image
-        source={{uri: 'https://placekitten.com/200/200'}}
-        style={styles.profileImage}
-      /> */}
+      <View>
+        <Image
+          source={{
+            uri: Avatar
+              ? Avatar
+              : 'https://place-hold.it/200x200',
+          }}
+          style={styles.profileImage}
+        />
+        <Pressable onPress={() => setShowModal(true)}>
+          <Text style={styles.title}>Upload foto</Text>
+        </Pressable>
+      </View>
 
-      <Image
-        source={{uri: userData.data.data.avatar ? userData.data.data.avatar : 'https://place-hold.it/200x200'}}
-        style={styles.profileImage}
-      />
+      <Modal
+        isVisible={showModal}
+        onBackdropPress={() => setShowModal(false)}
+        style={styles.modal}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropTransitionOutTiming={0}
+        backdropOpacity={0.5}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Pilih Opsi</Text>
+          <View style={styles.dropdownContainer}>
+            <View style={styles.containerIcon}>
+              <TouchableOpacity
+                onPress={handleUploadPress}
+                style={styles.optionContainer}>
+                <View style={styles.iconContainer}>
+                  <Icon name="upload" size={30} color="black" />
+                </View>
+                <Text>Upload Foto</Text>
+              </TouchableOpacity>
 
+              <Text style={styles.orText}>OR</Text>
+
+              <TouchableOpacity
+                onPress={handleCameraPress}
+                style={styles.optionContainer}>
+                <View style={styles.iconContainer}>
+                  <Icon name="camera" size={30} color="black" /> 
+                </View>
+                <Text>Kamera</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.closeButtonContainer}>
+            <Pressable
+              style={styles.closeButton} 
+              onPress={() => setShowModal(false)}>
+              <MaterialIcons name="close" size={30} color="#fff" />
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.inputContainer}>
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            value={username}
+            value={profile.name}
             onChangeText={handleUsernameChange}
             placeholder="Enter your username"
           />
@@ -105,7 +248,7 @@ const ProfileScreen = ({navigation}) => {
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            value={email}
+            value={profile.email}
             onChangeText={handleEmailChange}
             placeholder="Enter your email"
             keyboardType="email-address"
@@ -144,18 +287,65 @@ const ProfileScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  containerIcon: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  optionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'lightgrey',
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  iconContainer: {
+    marginRight: 8,
+  },
+  orText: {
+    marginVertical: 10,
+    fontWeight: 'bold',
+  },
+  title: {
+    fontSize: 15,
+    fontFamily: InterBold,
+    color: 'blue',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
   textModal: {
     fontFamily: InterBold,
     fontSize: 20,
   },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 16,
+    borderRadius: 30,
+    backgroundColor: COLOR_PRIMARY,
+    padding: 5,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+  },
   modal: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    margin: 0,
   },
   modalContent: {
     backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
+    padding: 16,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: 16,
+    color: '#333',
+    fontFamily: InterBold,
   },
   buttonContainer: {
     flexDirection: 'column',

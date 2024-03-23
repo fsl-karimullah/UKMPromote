@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -30,30 +30,25 @@ import {showToast} from '../../resources/helper';
 import {registerUser, resetUser} from '../../redux/slices/userSlices';
 import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
 
-const LoginScreen = ({navigation, registerUser}) => {
+const LoginScreen = ({registerUser}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setisLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigation = useNavigation();
 
-  const storeData = async (value) => {
+  const handleLoginPress = async () => {
     try {
-      await AsyncStorage.setItem('userToken', value);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+      if (!email || !password) {
+        showToast('error', 'Gagal', 'Email dan password harus diisi');
+        return;
+      }
 
-  const handleLoginPress = () => {
-    if (!email || !password) {
-      showToast('error', 'Gagal', 'Email dan password harus diisi');
-      return;
-    }
-  
-    setisLoading(true);
-   
-    axios
-      .post(
+      setisLoading(true);
+
+      const response = await axios.post(
         endpoint.loginUser,
         {
           email: email,
@@ -64,36 +59,32 @@ const LoginScreen = ({navigation, registerUser}) => {
             Accept: 'application/json',
           },
         },
-      )
-      .then(response => { 
-        registerUser(response.data);
-        // console.log(response.data.data.token);
-        showToast('success', 'Sukses', 'Selamat Datang');
-        storeData(response.data.data.token);
-        navigation.navigate('Tab');
-        setEmail('');
-        setPassword('');
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 422) {
-          showToast('error', 'Gagal', 'Email atau password salah');
-        } else {
-          console.log(error);
-          showToast('error', 'Gagal', 'Terjadi kesalahan saat login');
-        }
-      })
-      .finally(() => {
-        setisLoading(false);
-      });
+      );
+      await AsyncStorage.setItem('userToken', response.data.data.token);
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      setEmail('');
+      setPassword('');
+      showToast('success', 'Sukses', 'Selamat Datang');
+      registerUser(response.data);
+      navigation.navigate('Tab');
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        showToast('error', 'Gagal', 'Email atau password salah');
+      } else {
+        console.error(error);
+        showToast('error', 'Gagal', 'Terjadi kesalahan saat login');
+      }
+    } finally {
+      setisLoading(false);
+    }
   };
-  
 
   const handleCreateAccountPress = () => {
     navigation.navigate('RegisterScreen');
   };
 
   const handleForgotPasswordPress = () => {
-    navigation.navigate('ForgotPasswordScreen')
+    navigation.navigate('ForgotPasswordScreen');
   };
 
   return (
@@ -117,28 +108,39 @@ const LoginScreen = ({navigation, registerUser}) => {
               value={email}
               onChangeText={text => setEmail(text)}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry={true}
-              value={password}
-              onChangeText={text => setPassword(text)}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={text => setPassword(text)}
+              />
+              <TouchableOpacity
+                style={styles.toggleEyeIcon}
+                onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity onPress={handleForgotPasswordPress}>
               <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
             </TouchableOpacity>
           </View>
-          <ButtonPrimary title="Masuk" onPress={handleLoginPress} isLoading={isLoading} />
+          <ButtonPrimary
+            title="Masuk"
+            onPress={handleLoginPress}
+            isLoading={isLoading}
+          />
           <ButtonGray
-          
             title="Buat Akun Baru"
             onPress={() => navigation.navigate('RegisterScreen')}
-          /> 
+          />
         </View>
       </ScrollView>
-      {/* <View style={styles.containerCopyright}>
-          <Text style={styles.signInText}>Maded With ❤️ By Sixeyes Technologies</Text>
-        </View> */}
     </SafeAreaView>
   );
 };
@@ -157,8 +159,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     marginRight: 5,
-    fontFamily:InterBold,
-    color:'black'
+    fontFamily: InterBold,
+    color: 'black',
   },
   textBottom: {
     fontSize: 24,
@@ -169,8 +171,8 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 18,
     textAlign: 'center',
-    fontFamily:InterMedium,
-    color:'black'
+    fontFamily: InterMedium,
+    color: 'black',
   },
   content: {
     flex: 1,
@@ -204,7 +206,24 @@ const styles = StyleSheet.create({
     color: 'black',
     fontFamily: InterMedium,
   },
-
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#c4c4c4',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    color: 'black',
+    fontFamily: InterMedium,
+  },
+  toggleEyeIcon: {
+    position: 'absolute',
+    right: 10,
+  },
   googleButton: {
     backgroundColor: COLOR_GRAY_THIRD,
     paddingVertical: 15,
@@ -212,12 +231,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-
   signInText: {
     color: 'black',
     fontSize: 16,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 10,
     fontFamily: InterMedium,
   },
   forgotPasswordText: {
@@ -235,7 +253,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
 const mapDispatchToProps = {
   registerUser,
 };
