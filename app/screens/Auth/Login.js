@@ -37,7 +37,19 @@ const LoginScreen = ({registerUser}) => {
   const [password, setPassword] = useState('');
   const [isLoading, setisLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoadingStorage, setisLoadingStorage] = useState(false);
   const navigation = useNavigation();
+  const storeData = async token => {
+    try {
+      setisLoadingStorage(true);
+      await AsyncStorage.setItem('@userToken', token);
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      setisLoadingStorage(false);
+    } catch (error) { 
+      console.error('Error storing data:', error);
+      setisLoadingStorage(false);
+    }
+  };
 
   const handleLoginPress = async () => {
     try {
@@ -60,8 +72,7 @@ const LoginScreen = ({registerUser}) => {
           },
         },
       );
-      await AsyncStorage.setItem('userToken', response.data.data.token);
-      await AsyncStorage.setItem('isLoggedIn', 'true');
+      storeData(response.data.data.token);
       setEmail('');
       setPassword('');
       showToast('success', 'Sukses', 'Selamat Datang');

@@ -38,6 +38,12 @@ import {
   fetchShopDataSuccessAll,
   fetchShopDataFailure,
 } from '../../redux/slices/ShopSlice';
+import {
+  fetchNewsStart,
+  fetchNewsFailure,
+  fetchNewsSuccess,
+  fetchAllNewsSuccess,
+} from '../../redux/slices/newsSlices';
 import {endpoint} from '../../api/endpoint';
 import {selectUserData} from '../../redux/selectors/userSelectors';
 import {selectCategoryData} from '../../redux/selectors/categorySelectors';
@@ -48,10 +54,10 @@ import {
   fetchCategoryFailure,
 } from '../../redux/slices/categorySlice';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import FontAwesome5 from 'react-native-vector-icons/MaterialIcons';
 import EducationalCard from '../../components/Cards/EducationalCards';
 import SmallEducationalCard from '../../components/Cards/SmallEducationalCard';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
@@ -60,73 +66,63 @@ const Home = ({navigation}) => {
   const [isLoading, setisLoading] = useState(false);
   const shopDatas = useSelector(state => state.shop.shops);
   const shopDatasAll = useSelector(state => state.shop.allShops);
+  const newsData = useSelector(state => state.news);
   const userData = useSelector(selectUserData);
-  const categoryData = useSelector(selectCategoryData);
-  const [categoriesDatas, setcategoriesDatas] = useState();
   const [userToken, setUserToken] = useState();
   const [isAcceptLocation, setisAcceptLocation] = useState(false);
-
+  const [NewsData, setNewsData] = useState([]);
   const menuData = [
-    {id: '1', title: 'Kelas Bisnis', icon: 'book', route: 'ComingSoonScreen'},
+    {
+      id: '1',
+      title: 'Pendanaan UMKM',
+      icon: 'money',
+      route: 'ComingSoonScreen',
+    },
     {
       id: '2',
       title: 'Konsultasi Bisnis',
       icon: 'handshake',
       route: 'ComingSoonScreen',
     },
-    {
+    { 
       id: '3',
-      title: 'Event Brand-in',
-      icon: 'calendar-alt',
+      title: 'Pembuatan Website',
+      icon: 'web',
       route: 'ComingSoonScreen',
     },
   ];
 
   const getTokenData = async () => {
     try {
-      const value = await AsyncStorage.getItem('userToken');
+      const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        console.log('Home Token', value);
+        // console.log('Home Token', value);
       }
     } catch (e) {
       console.error(e);
     }
   };
   useEffect(() => {
+    console.log(userData);
     getTokenData();
+  }, []);
+  useEffect(() => {
     requestLocationPermission();
   }, []);
-
-  useEffect(() => {
-    console.log('Token after Login', userToken);
-  }, [userToken]);
 
   useEffect(() => {
     fetchShopData();
     fetchShopDataAll();
   }, [currentLocation]);
 
-  // useEffect(() => {
-  //   const backAction = () => {
-  //     Alert.alert('Perhatian', 'Apakah anda ingin keluar ?', [
-  //       {
-  //         text: 'Cancel',
-  //         onPress: () => null,
-  //         style: 'cancel',
-  //       },
-  //       {text: 'YES', onPress: () => BackHandler.exitApp()},
-  //     ]);
-  //     return true;
-  //   };
+  useEffect(() => {
+    if (userToken) {
+      fetchNewsData();
+    }
+  }, [userToken]);
 
-  //   const backHandler = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     backAction,
-  //   );
 
-  //   return () => backHandler.remove();
-  // }, []);
 
   const requestLocationPermission = async () => {
     try {
@@ -135,7 +131,7 @@ const Home = ({navigation}) => {
         const result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
         if (result !== RESULTS.GRANTED) {
           console.log('Location permission denied');
-          showToast('error', 'Perhatian','Perijinan lokasi ditolak');
+          showToast('error', 'Perhatian', 'Perijinan lokasi ditolak');
           setisAcceptLocation(false);
           return;
         }
@@ -157,7 +153,7 @@ const Home = ({navigation}) => {
   const fetchShopData = async () => {
     if (!currentLocation) {
       return;
-    }
+    } 
     setisLoading(true);
     dispatch(fetchShopDataStart());
     try {
@@ -170,8 +166,32 @@ const Home = ({navigation}) => {
         },
       );
       dispatch(fetchShopDataSuccess(response.data.data));
+      // response.data.data.forEach(item => {
+      //   console.log(item.name);
+      // });
+
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
+    } finally {
+      setisLoading(false);
+    }
+  };
+
+  const fetchNewsData = async () => {
+    setisLoading(true);
+    dispatch(fetchNewsStart());
+    try {
+      const response = await axios.get(endpoint.getNews, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      // console.log('NEWSSS', response.data.data);
+      setNewsData(response.data.data);
+      dispatch(fetchNewsSuccess(response.data.data));
+    } catch (error) {
+      dispatch(fetchNewsFailure(error.message));
+      console.error(error);
     } finally {
       setisLoading(false);
     }
@@ -187,7 +207,6 @@ const Home = ({navigation}) => {
         },
       });
       dispatch(fetchShopDataSuccessAll(response.data.data));
-      // console.log(response);
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
     } finally {
@@ -195,49 +214,12 @@ const Home = ({navigation}) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log('shop datas', shopDatas);
-  // }, []);
-
   const bannerImages = [
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
   ];
-  const educationalVideos = [
-    {
-      id: '1',
-      title: 'Cara upload bisnis ke Brand-In ke Brand-in',
-      description:
-        'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis.',
-      imageSource: 'https://i.ytimg.com/vi/25RD3_TE33s/maxresdefault.jpg',
-      onPress: navigation =>
-        navigation.navigate('EducationalDetail', {
-          title: 'Belajar Basic Upload UMKM ke Brand-in',
-          description:
-            'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis',
-          youtubeVideoId: '25RD3_TE33s',
-          datePosted: Date.now(),
-        }),
-    },
-    {
-      id: '2',
-      title:
-        'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
-      description:
-        'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
-      imageSource: 'https://i.ytimg.com/vi/1k21C-UR_8s/maxresdefault.jpg',
-      onPress: navigation =>
-        navigation.navigate('EducationalDetail', {
-          title:
-            'GOODPRENEURS - CARA MARKETING BUDGET TIPIS HASIL MILYARAN !!! (GUERILLA METHOD) | BRADERKAY',
-          description:
-            'GUERILLA MARKETING Adalah teknik marketing abnormal yang memiliki target market khusus, spesifik dengan goal viral ataupun sensasional dan harus mampu mencuri perhatian. simak full penjelasannya dari Braderkay di video ini..',
-          youtubeVideoId: '1k21C-UR_8s',
-          datePosted: Date.now(),
-        }),
-    },
-  ];
+
 
   const [numColumns, setNumColumns] = useState(2);
 
@@ -264,6 +246,7 @@ const Home = ({navigation}) => {
 
     try {
       await fetchShopData();
+      await fetchNewsData();
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
@@ -280,7 +263,7 @@ const Home = ({navigation}) => {
         <View style={styles.appBar}>
           <View style={styles.middleContainer}>
             <Text style={styles.titleTextAppBar}>Selamat Datang</Text>
-            <Text style={styles.locationText}>{userData.data.name}</Text>
+            <Text style={styles.locationText}>{userData.name}</Text>
           </View>
           <Pressable onPress={() => navigation.navigate('ProfileScreen')}>
             <Icon name="user-circle" size={30} color="white" />
@@ -376,24 +359,30 @@ const Home = ({navigation}) => {
 
         <View style={styles.containerCard}>
           <TitleWithArrow
-            title={'Artikel & Edukasi'}
-            onPressSeeAll={() => navigation.navigate('EducationalScreen')}
+            title={'Artikel & Blog'}
+            onPressSeeAll={() => navigation.navigate('ListAllNews')}
           />
           <View>
-            <FlatList
-              data={educationalVideos}
-              keyExtractor={item => item.id}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              renderItem={({item}) => (
-                <SmallEducationalCard
-                  title={item.title}
-                  description={item.description}
-                  imageSource={item.imageSource}
-                  onPress={() => item.onPress(navigation)}
-                />
-              )}
-            />
+            {isLoading ? (
+              <ActivityIndicator size={'large'} color={COLOR_PRIMARY} />
+            ) : (
+              <FlatList
+                data={NewsData}
+                keyExtractor={item => item.id}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                renderItem={({item}) => (
+                  <SmallEducationalCard
+                    title={item.title}
+                    description={item.description}
+                    imageSource={item.thumbnail}
+                    onPress={() =>
+                      navigation.navigate('NewsDetails', {id: item.id})
+                    }
+                  />
+                )}
+              />
+            )}
           </View>
         </View>
       </ScrollView>
@@ -412,10 +401,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLOR_PRIMARY, 
+    color: COLOR_PRIMARY,
   },
   warningIcon: {
-    color: COLOR_PRIMARY, 
+    color: COLOR_PRIMARY,
     fontSize: 24,
   },
   container: {

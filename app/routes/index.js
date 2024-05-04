@@ -28,8 +28,10 @@ import FundingDetail from '../screens/Funding/FundingDetail';
 import InformationScreen from '../screens/Auth/InformationScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ComingSoon from '../screens/ComingSoon/ComingSoon';
-import BussinessClass from '../screens/Education/BussinessClass'; 
+import BussinessClass from '../screens/Education/BussinessClass';
 import BusinessClassDetail from '../screens/Education/BussinessClassDetail';
+import NewsDetails from '../screens/News/NewsDetails';
+import ListAllNews from '../screens/News/ListAllNews';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -98,11 +100,7 @@ function MyTabs() {
           },
           headerTintColor: 'white',
           tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcon
-              name="school"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcon name="school" color={color} size={size} />
           ),
         }}
         component={BussinessClass}
@@ -127,25 +125,31 @@ function MyTabs() {
 }
 
 function App() {
-  const [isToken, setIsToken] = React.useState();
-  const [isLoggedIn, setIsLoggedIn] = React.useState();
-
+  const [isToken, setIsToken] = React.useState(null);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [IsLoading, setIsLoading] = React.useState(false)
   const getData = async () => {
     try {
-      const token = await AsyncStorage.getItem('userToken');
+      setIsLoading(true); 
+  
+      const token = await AsyncStorage.getItem('@userToken');
       const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
-
+      
       if (token !== null) {
         setIsToken(token);
       }
-
+  
       if (isLoggedIn !== null) {
         setIsLoggedIn(isLoggedIn);
       }
+  
+      setIsLoading(false); 
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
     }
   };
+  
 
   React.useEffect(() => {
     getData();
@@ -153,12 +157,9 @@ function App() {
 
   return (
     <NavigationContainer>
+     
       <Stack.Navigator
-        initialRouteName={
-          isToken === null || isToken === undefined || isLoggedIn === 'false'
-            ? 'SplashScreen'
-            : 'Tab'
-        }>
+        initialRouteName={isLoggedIn === 'false' ? 'Intro' : 'Tab'}>
         <Stack.Screen
           name="Intro"
           component={Login}
@@ -237,6 +238,29 @@ function App() {
           component={EducationScreen}
           options={{
             headerTitle: 'Artikel dan Edukasi',
+            headerStyle: {
+              backgroundColor: COLOR_PRIMARY,
+            },
+            headerTintColor: 'white',
+          }}
+        />
+        <Stack.Screen
+          name="NewsDetails"
+          component={NewsDetails}
+          options={{
+            headerTitle: 'Detail Berita',
+            headerStyle: {
+              backgroundColor: COLOR_PRIMARY,
+            },
+            headerTintColor: 'white',
+          }}
+        />
+
+        <Stack.Screen
+          name="ListAllNews"
+          component={ListAllNews}
+          options={{
+            headerTitle: 'Artikel dan Blog',
             headerStyle: {
               backgroundColor: COLOR_PRIMARY,
             },

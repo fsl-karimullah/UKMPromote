@@ -16,6 +16,7 @@ export const endpoint = {
   getShopDetail: (id) => `${url}/api/shops/${id}`,
   favouriteShop: (id) => `${url}/api/favorites`, 
   getFavouriteShop: `${url}/api/favorites`, 
-
+  getNews: `${url}/api/news`, 
+  getNewsDetails: (id) => `${url}/api/news/${id}`, 
 };
- 
+  

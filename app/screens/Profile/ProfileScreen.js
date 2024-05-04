@@ -37,17 +37,31 @@ const ProfileScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
   const userData = useSelector(state => state.user);
-  const [username, setUsername] = useState(userData.data.data.name);
-  const [email, setEmail] = useState(userData.data.data.email);
+  const [userToken, setUserToken] = useState();
+  const [username, setUsername] = useState(userData.data.name);
+  const [email, setEmail] = useState(userData.data.email);
   const [isModalVisible, setModalVisible] = useState(false);
   const [profile, setProfile] = useState([]);
   const [Avatar, setAvatar] = useState()
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
+  const getTokenData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@userToken');
+      if (value !== null) {
+        setUserToken(value);
+        console.log('profile Token', value);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  }; 
+
   useEffect(() => {
+    getTokenData();
     getProfile();
   }, []);
 
@@ -65,7 +79,7 @@ const ProfileScreen = ({navigation}) => {
 
   const removeValue = async () => {
   try {
-    await AsyncStorage.removeItem('userToken')
+    await AsyncStorage.removeItem('@userToken')
   } catch(e) {
     console.log(e);
   }
@@ -75,7 +89,7 @@ const ProfileScreen = ({navigation}) => {
     try {
       const response = await axios.get(endpoint.logoutUser, {
         headers: {
-          Authorization: `Bearer ${userData.data.data.token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       });
 
@@ -98,7 +112,7 @@ const ProfileScreen = ({navigation}) => {
     try {
       const response = await axios.get(endpoint.updateProfile, {
         headers: {
-          Authorization: `Bearer ${userData.data.data.token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       });
 

@@ -3,6 +3,7 @@ import userReducer from '../slices/userSlices';
 import shopReducer from '../slices/ShopSlice'; 
 import categoryReducers from './categoryData';
 import favoriteShopsReducer from '../slices/favoriteShopsSlice';
+import newsReducers from './newsData';
 
 
 const rootReducer = combineReducers({
@@ -10,6 +11,7 @@ const rootReducer = combineReducers({
   shop:shopReducer,
   category:categoryReducers,
   favoriteShops: favoriteShopsReducer,
+  news:newsReducers
 });
 
 export default rootReducer;

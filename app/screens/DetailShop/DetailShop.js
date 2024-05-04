@@ -30,28 +30,45 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const DetailShop = ({navigation, route}) => {
   const {id} = route.params;
   const dispatch = useDispatch();
-
+  const [userToken, setUserToken] = useState();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shopDetails, setshopDetails] = useState(null);
-
+  const [loadingStorage, setLoadingStorage] = useState(false);
   const userData = useSelector(selectUserData);
-
-
+ 
+ 
   useEffect(() => {
+    getTokenData();
     fetchShopDetail();
-  }, []);
+  }, []); 
 
-  const fetchShopDetail = async () => {
+
+  const getTokenData = async () => {
+    setLoadingStorage(true); 
+    try {
+      const value = await AsyncStorage.getItem('@userToken');
+      if (value !== null) {
+        setUserToken(value);
+        console.log('detail Token', value);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingStorage(false);
+    }
+  };
+
+  const fetchShopDetail = async () => {   
     try {
       setLoading(true);
       const headers = {
-        Authorization: `Bearer ${userData?.data?.token}`,
+        Authorization: `Bearer ${userToken}`,
       };
       const response = await axios.get(`${endpoint.getShopDetail(id)}`, {
         headers: headers,
       });
-      // console.log(response.data.data.schedule);
+      // console.log(response.data.data);
       setshopDetails(response.data.data);
       dispatch(getShopDetailStart(response.data.data));
     } catch (error) {
@@ -70,7 +87,7 @@ const DetailShop = ({navigation, route}) => {
     try {
       setLoading(true);
       const headers = {
-        Authorization: `Bearer ${userData?.data?.token}`,
+        Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
       };
 
@@ -80,7 +97,7 @@ const DetailShop = ({navigation, route}) => {
         {headers},
       );
 
-      console.log(response.data);
+      // console.log(response.data);
 
       const shopDetails = response.data.data;
 
@@ -101,18 +118,18 @@ const DetailShop = ({navigation, route}) => {
     }
   };
 
-  
   const deleteShopFav = async () => {
+    const shopId = shopDetails.favorite_id;
     try {
       setLoading(true);
       const headers = {
-        Authorization: `Bearer ${userData?.data?.token}`,
+        Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
       };
 
       const response = await axios.delete(
         `${endpoint.favouriteShop()}`,
-        {id},
+        {shopId},
         {headers},
       );
 
@@ -290,10 +307,14 @@ const DetailShop = ({navigation, route}) => {
           iconName="whatsapp"
           title="Hubungi"
         />
-        {shopDetails?.is_favorited ? <ButtonIcon customStyle={{fontSize:12}} iconName="star" title="Hapus dari Favorit" onPress={deleteShopFav} /> : <ButtonIcon iconName="star" title="Favorit" onPress={addShopFav} />}
+        {shopDetails?.is_favorited ? (
+          <ButtonIcon iconName="star" title="Hapus" onPress={deleteShopFav} />
+        ) : (
+          <ButtonIcon iconName="star" title="Favorit" onPress={addShopFav} />
+        )}
       </View>
     </SafeAreaView>
-  ); 
+  );
 };
 
 const styles = StyleSheet.create({

@@ -38,6 +38,7 @@ import {COLOR_PRIMARY} from '../../resources/colors';
 import {InterBold} from '../../resources/fonts';
 import EmptyComponent from '../../components/EmptyComponent/EmptyComponent';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SearchShop = ({navigation}) => {
   const dispatch = useDispatch();
@@ -58,16 +59,36 @@ const SearchShop = ({navigation}) => {
   const [filteredShopDatas, setFilteredShopDatas] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
+  const [loadingStorage, setLoadingStorage] = useState(false);
+  const [userToken, setUserToken] = useState();
+
+
+  useEffect(() => {
+    getTokenData();
+    fetchCategoryData();
+    requestLocationPermission();
+  }, []);
 
   useEffect(() => {
     fetchShopData();
   }, [currentLocation]);
 
-  useEffect(() => {
-    fetchCategoryData();
-    requestLocationPermission();
-  }, []);
+  const getTokenData = async () => {
+    setLoadingStorage(true); 
+    try {
+      const value = await AsyncStorage.getItem('@userToken');
+      if (value !== null) {
+        setUserToken(value);
+        console.log('detail Token', value);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingStorage(false);
+    }
+  };
 
+  
   const requestLocationPermission = async () => {
     try {
       const status = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
@@ -102,7 +123,7 @@ const SearchShop = ({navigation}) => {
         ),
         {
           headers: {
-            Authorization: `Bearer ${userData.data.data.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         },
       );
@@ -125,7 +146,7 @@ const SearchShop = ({navigation}) => {
         endpoint.getShopAll(currentLocation.latitude, currentLocation.longitude),
         {
           headers: {
-            Authorization: `Bearer ${userData.data.data.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         },
       );
@@ -155,7 +176,7 @@ const SearchShop = ({navigation}) => {
         ),
         {
           headers: {
-            Authorization: `Bearer ${userData.data.data.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         },
       );
@@ -173,7 +194,7 @@ const SearchShop = ({navigation}) => {
     try {
       const response = await axios.get(endpoint.getCategories, {
         headers: {
-          Authorization: `Bearer ${userData.data.data.token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       });
       console.log(response.data.data);

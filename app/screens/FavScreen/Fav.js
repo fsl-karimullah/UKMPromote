@@ -31,7 +31,7 @@ const Fav = ({navigation}) => {
         headers: headers,
       });
       console.log(response.data.data);
-      setFavorites(response.data.data);
+      setFavorites(response.data.data); 
     } catch (error) {
       console.error('Error fetching shop details:', error.message);
       showToast(

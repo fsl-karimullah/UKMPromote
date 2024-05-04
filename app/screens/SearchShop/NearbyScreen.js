@@ -45,10 +45,10 @@ const NearbyScreen = ({navigation}) => {
 
   const getTokenData = async () => {
     try {
-      const value = await AsyncStorage.getItem('userToken');
+      const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        console.log('Home Token', value);
+        // console.log('Home Token', value);
       }
     } catch (e) {
       console.error(e);
