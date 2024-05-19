@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {
   View,
   Text,
@@ -11,27 +11,50 @@ import FavCard from '../../components/Cards/FavCard';
 import {InterBold} from '../../resources/fonts';
 import {COLOR_BLACK, COLOR_PRIMARY} from '../../resources/colors';
 import {endpoint} from '../../api/endpoint';
-import {selectUserData} from '../../redux/selectors/userSelectors';
 import axios from 'axios';
 import {showToast} from '../../resources/helper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Fav = ({navigation}) => {
   const dispatch = useDispatch();
-  const userData = useSelector(selectUserData);
   const [isLoading, setisLoading] = useState(false);
   const [favorites, setFavorites] = useState([]);
+  const [userToken, setUserToken] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const getFavoritesData = async () => {
+  useEffect(() => {
+    getUserToken();
+  }, []);
+
+  const getUserToken = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@userToken');
+      if (value !== null) {
+        setUserToken(value);
+        getFavoritesData(value);
+      }
+    } catch (error) {
+      console.error('Error fetching user token:', error.message);
+    }
+  };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    if (userToken) {
+      await getFavoritesData(userToken);
+    }
+    setRefreshing(false);
+  };
+
+  const getFavoritesData = async token => {
     try {
       setisLoading(true);
       const headers = {
-        Authorization: `Bearer ${userData?.data?.token}`,
+        Authorization: `Bearer ${token}`,
       };
       const response = await axios.get(`${endpoint.getFavouriteShop}`, {
         headers: headers,
       });
-      console.log(response.data.data);
-      setFavorites(response.data.data); 
+      setFavorites(response.data.data);
     } catch (error) {
       console.error('Error fetching shop details:', error.message);
       showToast(
@@ -43,11 +66,6 @@ const Fav = ({navigation}) => {
       setisLoading(false);
     }
   };
-
-  useEffect(() => {
-    // console.log(userData.data.token);
-    getFavoritesData();
-  }, []);
 
   const renderFavItem = ({item}) => (
     <FavCard
@@ -61,7 +79,6 @@ const Fav = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.heading}>Favorites</Text> */}
       {isLoading ? (
         <ActivityIndicator size="large" color={COLOR_PRIMARY} />
       ) : (
@@ -69,6 +86,8 @@ const Fav = ({navigation}) => {
           data={favorites}
           keyExtractor={item => item.id.toString()}
           renderItem={renderFavItem}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
         />
       )}
     </View>
@@ -78,7 +97,6 @@ const Fav = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 16,
   },
   heading: {
     fontSize: 24,

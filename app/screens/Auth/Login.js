@@ -25,7 +25,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
 import ButtonGray from '../../components/Buttons/ButtonGray';
 import {endpoint} from '../../api/endpoint';
-import axios from 'axios';
+import axios from 'axios'; 
 import {showToast} from '../../resources/helper';
 import {registerUser, resetUser} from '../../redux/slices/userSlices';
 import {connect} from 'react-redux';
@@ -128,7 +128,7 @@ const LoginScreen = ({registerUser}) => {
                 onChangeText={text => setPassword(text)}
               />
               <TouchableOpacity
-                style={styles.toggleEyeIcon}
+                style={styles.toggleEyeIcon} 
                 onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons
                   name={showPassword ? 'eye-off' : 'eye'}

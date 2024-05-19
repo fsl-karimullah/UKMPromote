@@ -5,9 +5,7 @@ import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_PRIMARY } from '../../resources/colors';
 
 const SplashScreen = ({navigation}) => {
-  setTimeout(() => {
-    navigation.navigate('Intro')
-  }, 3000);
+
   return (
     <ImageBackground style={styles.background}>
       <View style={styles.container}>

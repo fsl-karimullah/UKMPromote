@@ -33,33 +33,36 @@ const DetailShop = ({navigation, route}) => {
   const [userToken, setUserToken] = useState();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [shopDetails, setshopDetails] = useState(null);
-  const [loadingStorage, setLoadingStorage] = useState(false);
+  const [shopDetails, setShopDetails] = useState(null);
+  const [loadingStorage, setLoadingStorage] = useState(true);
   const userData = useSelector(selectUserData);
- 
- 
+
   useEffect(() => {
-    getTokenData();
-    fetchShopDetail();
-  }, []); 
-
-
-  const getTokenData = async () => {
-    setLoadingStorage(true); 
-    try {
-      const value = await AsyncStorage.getItem('@userToken');
-      if (value !== null) {
-        setUserToken(value);
-        console.log('detail Token', value);
+    console.log(shopDetails);
+    const getTokenData = async () => {
+      try {
+        const value = await AsyncStorage.getItem('@userToken');
+        if (value !== null) {
+          setUserToken(value);
+          console.log('detail Token', value);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingStorage(false);
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingStorage(false);
-    }
-  };
+    };
 
-  const fetchShopDetail = async () => {   
+    getTokenData();
+  }, []);
+
+  useEffect(() => {
+    if (userToken) {
+      fetchShopDetail();
+    }
+  }, [userToken]);
+
+  const fetchShopDetail = async () => {
     try {
       setLoading(true);
       const headers = {
@@ -68,8 +71,7 @@ const DetailShop = ({navigation, route}) => {
       const response = await axios.get(`${endpoint.getShopDetail(id)}`, {
         headers: headers,
       });
-      // console.log(response.data.data);
-      setshopDetails(response.data.data);
+      setShopDetails(response.data.data);
       dispatch(getShopDetailStart(response.data.data));
     } catch (error) {
       console.error('Error fetching shop details:', error.message);
@@ -97,13 +99,23 @@ const DetailShop = ({navigation, route}) => {
         {headers},
       );
 
-      // console.log(response.data);
+      const responseData = response.data;
+      const shopDetailsResponse = responseData.data;
 
-      const shopDetails = response.data.data;
+      if (responseData.message === 'This shop already favorited') {
+        showToast('warning', 'Perhatian', 'Toko ini sudah ada di favorit Anda');
+      } else {
+        setShopDetails(prevDetails => ({
+          ...prevDetails,
+          favorite_id: shopDetailsResponse.favorite_id,
+          is_favorited: true,
+        }));
 
-      dispatch(addFavoriteShop(shopDetails));
+        dispatch(addFavoriteShop(shopDetailsResponse));
 
-      showToast('success', 'Sukses', 'Berhasil ditambahkan ke favorit.');
+        showToast('success', 'Sukses', 'Berhasil ditambahkan ke favorit.');
+        fetchShopDetail()
+      }
     } catch (error) {
       console.error('Error adding shop to favorites:', error.message);
       showToast(
@@ -128,14 +140,18 @@ const DetailShop = ({navigation, route}) => {
       };
 
       const response = await axios.delete(
-        `${endpoint.favouriteShop()}`,
-        {shopId},
+        `${endpoint.deleteFavouriteShop(shopId)}`,
         {headers},
       );
 
-      console.log(response.data);
+      const responseData = response.data;
+      const shopDetailsResponse = responseData.data;
 
-      const shopDetails = response.data.data;
+      setShopDetails(prevDetails => ({
+        ...prevDetails,
+        favorite_id: null,
+        is_favorited: false,
+      }));
 
       showToast('success', 'Sukses', 'Berhasil dihapus dari favorit.');
     } catch (error) {
@@ -146,7 +162,7 @@ const DetailShop = ({navigation, route}) => {
         'Terdapat kesalahan, Toko sudah ditambahkan ke favorit.',
       );
 
-      console.log(error.response);
+      console.log(error.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -191,6 +207,7 @@ const DetailShop = ({navigation, route}) => {
       );
     }
   };
+
   const openMaps = () => {
     if (shopDetails.lat && shopDetails.lng) {
       const latitude = shopDetails.lat;
@@ -207,7 +224,7 @@ const DetailShop = ({navigation, route}) => {
     }
   };
 
-  if (loading) {
+  if (loading || loadingStorage) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLOR_PRIMARY} />
@@ -306,8 +323,8 @@ const DetailShop = ({navigation, route}) => {
           onPress={handleWhatsappPress}
           iconName="whatsapp"
           title="Hubungi"
-        />
-        {shopDetails?.is_favorited ? (
+        /> 
+        {shopDetails?.favorite_id ? (
           <ButtonIcon iconName="star" title="Hapus" onPress={deleteShopFav} />
         ) : (
           <ButtonIcon iconName="star" title="Favorit" onPress={addShopFav} />
@@ -438,7 +455,6 @@ const styles = StyleSheet.create({
     color: '#333',
     fontFamily: InterBold,
   },
-
   dropdownContainer: {
     marginBottom: 20,
   },

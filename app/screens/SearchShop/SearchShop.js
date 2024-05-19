@@ -62,24 +62,25 @@ const SearchShop = ({navigation}) => {
   const [loadingStorage, setLoadingStorage] = useState(false);
   const [userToken, setUserToken] = useState();
 
-
   useEffect(() => {
+    // console.log('jkjkjkkj',currentLocation);
     getTokenData();
-    fetchCategoryData();
+
     requestLocationPermission();
   }, []);
 
   useEffect(() => {
     fetchShopData();
+    fetchCategoryData();
   }, [currentLocation]);
 
   const getTokenData = async () => {
-    setLoadingStorage(true); 
+    setLoadingStorage(true);
     try {
       const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        console.log('detail Token', value);
+        // console.log('detail Token', value);
       }
     } catch (e) {
       console.error(e);
@@ -88,14 +89,13 @@ const SearchShop = ({navigation}) => {
     }
   };
 
-  
   const requestLocationPermission = async () => {
     try {
       const status = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
       if (status !== RESULTS.GRANTED) {
         const result = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
         if (result !== RESULTS.GRANTED) {
-          showToast('error', 'Perhatian','Perijinan lokasi ditolak');
+          showToast('error', 'Perhatian', 'Perijinan lokasi ditolak');
           return;
         }
       }
@@ -113,23 +113,35 @@ const SearchShop = ({navigation}) => {
 
   const searchAction = async value => {
     if (!currentLocation) {
+      console.log('Current location is not defined');
       return;
     }
+
+    // console.log(`Searching for "${value}" at lat: ${currentLocation.latitude}, lng: ${currentLocation.longitude}`);
+
     setisLoading(true);
     try {
-      const response = await axios.get(
-        endpoint.searchShop(
-          value,
-        ),
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        },
+      const url = endpoint.searchShop(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        value,
       );
+      console.log(`Request URL: ${url}`);
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      console.log('Search response:', response.data);
       setFilteredShopDatas(response.data.data);
     } catch (error) {
-      console.log('category error', error);
+      console.log('Search error:', error);
+      console.log(
+        'Error details:',
+        error.response ? error.response.data : error.message,
+      );
     } finally {
       setisLoading(false);
     }
@@ -143,7 +155,10 @@ const SearchShop = ({navigation}) => {
     dispatch(fetchShopDataStart());
     try {
       const response = await axios.get(
-        endpoint.getShopAll(currentLocation.latitude, currentLocation.longitude),
+        endpoint.getShopAll(
+          currentLocation.latitude,
+          currentLocation.longitude,
+        ),
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
@@ -159,7 +174,6 @@ const SearchShop = ({navigation}) => {
       setisLoading(false);
     }
   };
- 
 
   const fetchShopDataByFilter = async categoryId => {
     if (!currentLocation) {
@@ -189,6 +203,7 @@ const SearchShop = ({navigation}) => {
       setisLoading(false);
     }
   };
+
   const fetchCategoryData = async () => {
     dispatch(fetchCategoryStart());
     try {
@@ -208,6 +223,7 @@ const SearchShop = ({navigation}) => {
       setisLoading(false);
     }
   };
+
   const renderItem = ({item}) => (
     <ShopCardVertical
       title={item.name}
@@ -409,7 +425,7 @@ const styles = StyleSheet.create({
   },
   resetFilterButtonIcon: {
     marginLeft: 10,
-    alignSelf:'center'
+    alignSelf: 'center',
   },
 });
 

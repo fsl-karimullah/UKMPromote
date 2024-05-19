@@ -48,7 +48,7 @@ function MyTabs() {
           marginBottom: 4,
           fontFamily: InterBold,
         },
-      }}>
+      }}> 
       <Tab.Screen
         name="HomeScreen"
         options={{
@@ -93,8 +93,8 @@ function MyTabs() {
       <Tab.Screen
         name="BussinessClass"
         options={{
-          headerTitle: 'Kelas Bisnis Gratis',
-          tabBarLabel: 'Kelas Bisnis',
+          headerTitle: 'Halaman Entepreneur Bisnis',
+          tabBarLabel: 'Edukasi Bisnis',
           headerStyle: {
             backgroundColor: COLOR_PRIMARY,
           },
@@ -122,185 +122,202 @@ function MyTabs() {
       />
     </Tab.Navigator>
   );
+
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator initialRouteName="Intro">
+      <Stack.Screen
+        name="Intro"
+        component={Login}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="RegisterScreen"
+        component={Register}
+        options={{
+          headerTitle: 'Buat Akun Baru',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="ForgotPasswordScreen"
+        component={ForgotPassword}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="InformationResetPassword"
+        component={InformationScreen}
+        options={{
+          headerTitle: 'Reset Password',
+          headerBackVisible: false,
+          headerTitleAlign: 'center',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="Tab" 
+        component={MainAppStack}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function MainAppStack() {
+  return (
+    <Stack.Navigator >
+      <Stack.Screen
+        name="Main"
+        component={MyTabs}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="DetailShop"
+        component={DetailShop}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EducationalDetail"
+        component={EducationalDetailScreen}
+        options={{
+          headerTitle: 'Edukasi UMKM',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="NearbyScreen"
+        component={NearbyScreen}
+        options={{
+          headerTitle: 'Bisnis Sekitar',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="EducationalScreen"
+        component={EducationScreen}
+        options={{
+          headerTitle: 'Artikel dan Edukasi',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="NewsDetails"
+        component={NewsDetails}
+        options={{
+          headerTitle: 'Detail Berita',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="ListAllNews"
+        component={ListAllNews}
+        options={{
+          headerTitle: 'Artikel dan Blog',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="FundingDetailScreen"
+        component={FundingDetail}
+        options={{
+          headerTitle: 'Detail Investor',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="ComingSoonScreen"
+        component={ComingSoon}
+        options={{
+          headerTitle: 'Fitur Akan Datang',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="BussinessDetailScreen"
+        component={BusinessClassDetail}
+        options={{
+          headerTitle: 'Edukasi Bisnis',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+    </Stack.Navigator>
+  );
 }
 
 function App() {
   const [isToken, setIsToken] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [IsLoading, setIsLoading] = React.useState(false)
-  const getData = async () => {
-    try {
-      setIsLoading(true); 
-  
-      const token = await AsyncStorage.getItem('@userToken');
-      const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
-      
-      if (token !== null) {
-        setIsToken(token);
-      }
-  
-      if (isLoggedIn !== null) {
-        setIsLoggedIn(isLoggedIn);
-      }
-  
-      setIsLoading(false); 
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
-  };
-  
+  const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
+    const getData = async () => {
+      try {
+        setIsLoading(true);
+        const token = await AsyncStorage.getItem('@userToken');
+        const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
+
+        if (token !== null) {
+          setIsToken(token);
+        }
+
+        if (isLoggedIn !== null) {
+          setIsLoggedIn(isLoggedIn); 
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
+    };
+
     getData();
   }, []);
 
+  if (isLoading) {
+    return <SplashScreen />;
+  }
+
   return (
     <NavigationContainer>
-     
-      <Stack.Navigator
-        initialRouteName={isLoggedIn === 'false' ? 'Intro' : 'Tab'}>
-        <Stack.Screen
-          name="Intro"
-          component={Login}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="SplashScreen"
-          component={SplashScreen}
-          options={{headerShown: false}}
-        />
-
-        <Stack.Screen
-          name="RegisterScreen"
-          component={Register}
-          options={{
-            headerTitle: 'Buat Akun Baru',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="ForgotPasswordScreen"
-          component={ForgotPassword}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="InformationResetPassword"
-          component={InformationScreen}
-          options={{
-            headerTitle: 'Reset Password',
-            headerBackVisible: false,
-            headerTitleAlign: 'center',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-
-        <Stack.Screen
-          name="Tab"
-          component={MyTabs}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="DetailShop"
-          component={DetailShop}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="EducationalDetail"
-          component={EducationalDetailScreen}
-          options={{
-            headerTitle: 'Edukasi UMKM',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="NearbyScreen"
-          component={NearbyScreen}
-          options={{
-            headerTitle: 'Bisnis Sekitar',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="EducationalScreen"
-          component={EducationScreen}
-          options={{
-            headerTitle: 'Artikel dan Edukasi',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="NewsDetails"
-          component={NewsDetails}
-          options={{
-            headerTitle: 'Detail Berita',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-
-        <Stack.Screen
-          name="ListAllNews"
-          component={ListAllNews}
-          options={{
-            headerTitle: 'Artikel dan Blog',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="FundingDetailScreen"
-          component={FundingDetail}
-          options={{
-            headerTitle: 'Detail Investor',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="ComingSoonScreen"
-          component={ComingSoon}
-          options={{
-            headerTitle: 'Fitur Akan Datang',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-        <Stack.Screen
-          name="BussinessDetailScreen"
-          component={BusinessClassDetail}
-          options={{
-            headerTitle: 'Kelas Bisnis',
-            headerStyle: {
-              backgroundColor: COLOR_PRIMARY,
-            },
-            headerTintColor: 'white',
-          }}
-        />
-      </Stack.Navigator>
+      {isToken === null ? <AuthStack /> : <MainAppStack />}
     </NavigationContainer>
   );
 }

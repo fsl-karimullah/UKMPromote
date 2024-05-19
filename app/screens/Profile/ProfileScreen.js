@@ -31,6 +31,7 @@ import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
 import { check, request, PERMISSIONS } from 'react-native-permissions';
 import * as ImagePicker from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { skipToken } from '@reduxjs/toolkit/query';
 
 
 const ProfileScreen = ({navigation}) => {
@@ -43,16 +44,19 @@ const ProfileScreen = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [profile, setProfile] = useState([]);
   const [Avatar, setAvatar] = useState()
+  useEffect(() => {
+    getTokenData();
+  }, []);
 
   const getTokenData = async () => {
     try {
       const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        console.log('profile Token', value);
+        getProfile(value);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -85,51 +89,48 @@ const ProfileScreen = ({navigation}) => {
   }
 
 }
-  const handleLogout = async () => {
-    try {
-      const response = await axios.get(endpoint.logoutUser, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
+const getProfile = async (token) => {
+  try {
+    const response = await axios.get(endpoint.updateProfile, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      if (response.status === 200) {
-        removeValue()
-        await AsyncStorage.setItem('isLoggedIn', 'false'); 
-        console.log('success');
-        navigation.pop();
-      } else {
-        console.error('Logout failed:', response.status, response.statusText);
-        Alert.alert('Logout failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Logout error:', error.message);
-      Alert.alert('An error occurred. Please try again.');
+    if (response.status === 200) {
+      setProfile(response.data.data); 
+      setAvatar(response.data.data.avatar);
+    } else {
+      console.error('Failed to fetch profile:', response.status, response.statusText);
+      // Alert.alert('Failed to fetch profile. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error('Error fetching profile:', error.message);
+    // Alert.alert('An error occurred while fetching profile. Please try again.');
+  }
+};
 
-  const getProfile = async () => {
-    try {
-      const response = await axios.get(endpoint.updateProfile, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
+const handleLogout = async () => {
+  try {
+    const response = await axios.get(endpoint.logoutUser, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
 
-      if (response.status === 200) {
-        console.log(response.data.data);
-        setProfile(response.data.data);
-        setAvatar(response.data.data.avatar)
-      } else {
-        console.error('Logout failed:', response.status, response.statusText);
-        Alert.alert('Logout failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Logout error:', error.message);
-      Alert.alert('An error occurred. Please try again.');
+    if (response.status === 200) {
+      await AsyncStorage.removeItem('@userToken');
+      await AsyncStorage.setItem('isLoggedIn', 'false');
+      navigation.navigate('Intro');
+    } else {
+      console.error('Logout failed:', response.status, response.statusText);
+      // Alert.alert('Logout failed. Please try again.');
     }
-  };
-
+  } catch (error) {
+    console.error('Logout error:', error.message);
+    // Alert.alert('An error occurred while logging out. Please try again.');
+  }
+};
   const handleUploadPress = async () => {
     try {
       const result = await ImagePicker.launchImageLibrary({
@@ -200,9 +201,9 @@ const ProfileScreen = ({navigation}) => {
         <Pressable onPress={() => setShowModal(true)}>
           <Text style={styles.title}>Upload foto</Text>
         </Pressable>
-      </View>
+      </View> 
 
-      <Modal
+      <Modal 
         isVisible={showModal}
         onBackdropPress={() => setShowModal(false)}
         style={styles.modal}
@@ -260,7 +261,7 @@ const ProfileScreen = ({navigation}) => {
           />
         </View>
         <View style={styles.inputWrapper}>
-          <TextInput
+          <TextInput 
             style={styles.input}
             value={profile.email}
             onChangeText={handleEmailChange}
@@ -290,7 +291,7 @@ const ProfileScreen = ({navigation}) => {
           <View style={styles.modalContent}>
             <Text style={styles.textModal}>Apakah anda ingin keluar?</Text>
             <View style={styles.buttonContainer}>
-              <ButtonPrimary title="Iya" onPress={handleLogout} />
+              <ButtonPrimary title="Iya" onPress={() => handleLogout()} />
               <ButtonGray title="Tidak" onPress={toggleModal} />
             </View>
           </View>
@@ -357,7 +358,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    marginBottom: 16,
+    marginBottom: 16, 
     color: '#333',
     fontFamily: InterBold,
   },

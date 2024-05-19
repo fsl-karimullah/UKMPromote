@@ -12,7 +12,7 @@ const ComingSoon = ({ releaseDate }) => {
         style={styles.image}
       />
       <Text style={styles.text}>
-        Fitur ini masih dalam tahap pembuatan dan akan rilis pada tanggal 21-05-2024
+        Sayangnya fitur ini masih dalam pengembangan. Stay Tune with US !
       </Text> 
     </View>
   );

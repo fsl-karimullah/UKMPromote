@@ -8,7 +8,7 @@ import {
   ScrollView,
   RefreshControl,
   Alert,
-  BackHandler,
+  BackHandler,  
   Pressable,
   ActivityIndicator,
 } from 'react-native';
@@ -71,8 +71,9 @@ const Home = ({navigation}) => {
   const [userToken, setUserToken] = useState();
   const [isAcceptLocation, setisAcceptLocation] = useState(false);
   const [NewsData, setNewsData] = useState([]);
+  
   const menuData = [
-    {
+    { 
       id: '1',
       title: 'Pendanaan UMKM',
       icon: 'money',
@@ -93,21 +94,22 @@ const Home = ({navigation}) => {
   ];
 
   const getTokenData = async () => {
+    
     try {
       const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        // console.log('Home Token', value);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error('Error getting user token:', error);
     }
   };
+
   useEffect(() => {
     console.log(userData);
     getTokenData();
-  }, []);
-  useEffect(() => {
+  }, []); 
+  useEffect(() => { 
     requestLocationPermission();
   }, []);
 
@@ -137,11 +139,11 @@ const Home = ({navigation}) => {
         }
       }
       Geolocation.getCurrentPosition(
-        position => {
+        position => { 
           const {latitude, longitude} = position.coords;
           setCurrentLocation({latitude, longitude});
         },
-        error => console.log('Error getting location:', error),
+        error => console.log('Error getting location:', error), 
         {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
       );
       setisAcceptLocation(true);
@@ -263,7 +265,7 @@ const Home = ({navigation}) => {
         <View style={styles.appBar}>
           <View style={styles.middleContainer}>
             <Text style={styles.titleTextAppBar}>Selamat Datang</Text>
-            <Text style={styles.locationText}>{userData.name}</Text>
+            <Text style={styles.locationText}>{userData.data?.name}</Text>
           </View>
           <Pressable onPress={() => navigation.navigate('ProfileScreen')}>
             <Icon name="user-circle" size={30} color="white" />
