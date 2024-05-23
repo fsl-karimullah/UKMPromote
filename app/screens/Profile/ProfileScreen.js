@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,14 +11,14 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
-import { widthPercentageToDP } from 'react-native-responsive-screen';
+import {widthPercentageToDP} from 'react-native-responsive-screen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { COLOR_PRIMARY } from '../../resources/colors';
-import { InterBold, InterMedium } from '../../resources/fonts';
-import { useDispatch, useSelector } from 'react-redux';
-import { endpoint } from '../../api/endpoint';
+import {COLOR_PRIMARY} from '../../resources/colors';
+import {InterBold, InterMedium} from '../../resources/fonts';
+import {useDispatch, useSelector} from 'react-redux';
+import {endpoint} from '../../api/endpoint';
 import axios from 'axios';
 import Modal from 'react-native-modal';
 import ButtonGray from '../../components/Buttons/ButtonGray';
@@ -29,17 +29,20 @@ import {
 } from '../../redux/slices/authSlice';
 import ButtonIcon from '../../components/Buttons/ButtonIcon';
 import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
-import { check, request, PERMISSIONS } from 'react-native-permissions';
+import {check, request, PERMISSIONS} from 'react-native-permissions';
 import * as ImagePicker from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {showToast} from '../../resources/helper';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
   const userData = useSelector(state => state.user);
   const [userToken, setUserToken] = useState();
-  const [username, setUsername] = useState(userData.data.name);
-  const [email, setEmail] = useState(userData.data.email);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [profile, setProfile] = useState({});
   const [Avatar, setAvatar] = useState();
@@ -71,12 +74,46 @@ const ProfileScreen = ({ navigation }) => {
     setUsername(text);
   };
 
-  const handleEmailChange = text => {
-    setEmail(text);
+  const handlePasswordChange = text => {
+    setPassword(text);
   };
 
-  const handleEditProfile = () => {
-    console.log('Edit Profile clicked!');
+  const handlePasswordConfirmationChange = text => {
+    setPasswordConfirmation(text);
+  };
+
+  const handleEditProfile = async () => {
+    try {
+      const response = await axios.patch(
+        endpoint.updateProfile,
+        {
+          name: username,
+          password: password,
+          password_confirmation: passwordConfirmation,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        showToast(
+          'success',
+          'Berhasil',
+          'Profile berhasil di upgrade, silahkan login lagi',
+        );
+        navigation.navigate('Intro');
+      } else {
+        console.log('Failed to update profile', response.statusText);
+        showToast('error', 'Gagal', 'Profile gagal di update');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error.message);
+      showToast('error', 'Gagal', 'Profile gagal di update');
+      // Alert.alert('Error updating profile', error.message);
+    }
   };
 
   const removeValue = async () => {
@@ -87,17 +124,20 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  const getProfile = async (token) => {
+  const getProfile = async token => {
     try {
-      const response = await axios.get(endpoint.updateProfile, {
+      const response = await axios.get(endpoint.getProfile, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.status === 200) {
+        const {name, email, avatar} = response.data.data;
         setProfile(response.data.data);
-        setAvatar(response.data.data.avatar);
+        setUsername(name);
+        setEmail(email);
+        setAvatar(avatar);
       } else {
         console.error(
           'Failed to fetch profile:',
@@ -255,9 +295,9 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            value={profile.name}
+            value={username}
             onChangeText={handleUsernameChange}
-            placeholder="Enter your username"
+            placeholder="Tulis username anda"
           />
           <MaterialIcon
             name="pencil"
@@ -269,10 +309,39 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            value={profile.email}
-            onChangeText={handleEmailChange}
-            placeholder="Enter your email"
-            keyboardType="email-address"
+            value={email}
+            editable={false}
+            placeholder="Tulis email anda"
+          />
+          <MaterialIcon
+            name="email"
+            size={20}
+            color="#555"
+            style={styles.inputIcon}
+          />
+        </View>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={handlePasswordChange}
+            placeholder="Masukkan password baru"
+            secureTextEntry
+          />
+          <MaterialIcon
+            name="pencil"
+            size={20}
+            color="#555"
+            style={styles.inputIcon}
+          />
+        </View>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            value={passwordConfirmation}
+            onChangeText={handlePasswordConfirmationChange}
+            placeholder="Konfirmasi password baru"
+            secureTextEntry
           />
           <MaterialIcon
             name="pencil"
@@ -282,26 +351,15 @@ const ProfileScreen = ({ navigation }) => {
           />
         </View>
       </View>
-
-      <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
-        <MaterialIcon name="pencil" size={24} color="#fff" />
-        <Text style={styles.editButtonText}>Edit Profile</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.logoutButton} onPress={toggleModal}>
-        <MaterialIcon name="logout" size={24} color="#fff" />
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
-      <View style={{ flex: 1 }}>
-        <Modal isVisible={isModalVisible} style={styles.modal}>
-          <View style={styles.modalContent}>
-            <Text style={styles.textModal}>Apakah anda ingin keluar?</Text>
-            <View style={styles.buttonContainer}>
-              <ButtonPrimary title="Iya" onPress={() => handleLogout()} />
-              <ButtonGray title="Tidak" onPress={toggleModal} />
-            </View>
-          </View>
-        </Modal>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
+          <MaterialIcon name="content-save" size={20} color="#fff" />
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <MaterialIcons name="logout" size={20} color="#fff" />
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -375,7 +433,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'column',
-    marginTop: 20,
   },
   container: {
     flex: 1,
