@@ -8,7 +8,7 @@ import {
   ScrollView,
   RefreshControl,
   Alert,
-  BackHandler,  
+  BackHandler,
   Pressable,
   ActivityIndicator,
 } from 'react-native';
@@ -45,6 +45,7 @@ import {
   fetchAllNewsSuccess,
 } from '../../redux/slices/newsSlices';
 import {endpoint} from '../../api/endpoint';
+import {fetchUserDataFromStorage} from '../../redux/slices/storageSlice'; // Import the action to fetch user data
 import {selectUserData} from '../../redux/selectors/userSelectors';
 import {selectCategoryData} from '../../redux/selectors/categorySelectors';
 import {showToast} from '../../resources/helper';
@@ -63,7 +64,7 @@ const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [isLoading, setisLoading] = useState(false);
+  const [isLoading, setisLoading] = useState(true);
   const shopDatas = useSelector(state => state.shop.shops);
   const shopDatasAll = useSelector(state => state.shop.allShops);
   const newsData = useSelector(state => state.news);
@@ -71,9 +72,9 @@ const Home = ({navigation}) => {
   const [userToken, setUserToken] = useState();
   const [isAcceptLocation, setisAcceptLocation] = useState(false);
   const [NewsData, setNewsData] = useState([]);
-  
+
   const menuData = [
-    { 
+    {
       id: '1',
       title: 'Pendanaan UMKM',
       icon: 'money',
@@ -85,7 +86,7 @@ const Home = ({navigation}) => {
       icon: 'handshake',
       route: 'ComingSoonScreen',
     },
-    { 
+    {
       id: '3',
       title: 'Pembuatan Website',
       icon: 'web',
@@ -94,7 +95,6 @@ const Home = ({navigation}) => {
   ];
 
   const getTokenData = async () => {
-    
     try {
       const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
@@ -106,25 +106,23 @@ const Home = ({navigation}) => {
   };
 
   useEffect(() => {
-    console.log(userData);
-    getTokenData();
-  }, []); 
-  useEffect(() => { 
-    requestLocationPermission();
-  }, []);
-
-  useEffect(() => {
     fetchShopData();
     fetchShopDataAll();
   }, [currentLocation]);
+  useEffect(() => {
+    // console.log(userData);
+    getTokenData();
+  }, []);
+
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
 
   useEffect(() => {
     if (userToken) {
       fetchNewsData();
     }
   }, [userToken]);
-
-
 
   const requestLocationPermission = async () => {
     try {
@@ -139,11 +137,11 @@ const Home = ({navigation}) => {
         }
       }
       Geolocation.getCurrentPosition(
-        position => { 
+        position => {
           const {latitude, longitude} = position.coords;
           setCurrentLocation({latitude, longitude});
         },
-        error => console.log('Error getting location:', error), 
+        error => console.log('Error getting location:', error),
         {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
       );
       setisAcceptLocation(true);
@@ -155,7 +153,7 @@ const Home = ({navigation}) => {
   const fetchShopData = async () => {
     if (!currentLocation) {
       return;
-    } 
+    }
     setisLoading(true);
     dispatch(fetchShopDataStart());
     try {
@@ -171,7 +169,6 @@ const Home = ({navigation}) => {
       // response.data.data.forEach(item => {
       //   console.log(item.name);
       // });
-
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
     } finally {
@@ -221,7 +218,6 @@ const Home = ({navigation}) => {
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
   ];
-
 
   const [numColumns, setNumColumns] = useState(2);
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,42 +12,35 @@ import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {InterBold, InterMedium} from '../../resources/fonts';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { InterBold, InterMedium } from '../../resources/fonts';
 import images from '../../resources/images';
 import {
-  COLOR_GRAY_SECONDARY,
   COLOR_GRAY_THIRD,
-  COLOR_PRIMARY,
-  COLOR_SECONDARY,
 } from '../../resources/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
 import ButtonGray from '../../components/Buttons/ButtonGray';
-import {endpoint} from '../../api/endpoint';
+import { endpoint } from '../../api/endpoint';
 import axios from 'axios'; 
-import {showToast} from '../../resources/helper';
-import {registerUser, resetUser} from '../../redux/slices/userSlices';
-import {connect} from 'react-redux';
+import { showToast } from '../../resources/helper';
+import { registerUser } from '../../redux/slices/userSlices';
+import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = ({registerUser}) => {
+const LoginScreen = ({ registerUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setisLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoadingStorage, setisLoadingStorage] = useState(false);
   const navigation = useNavigation();
-  const storeData = async token => {
+
+  const storeToken = async (token) => {
     try {
-      setisLoadingStorage(true);
       await AsyncStorage.setItem('@userToken', token);
-      await AsyncStorage.setItem('isLoggedIn', 'true');
-      setisLoadingStorage(false);
-    } catch (error) { 
-      console.error('Error storing data:', error);
-      setisLoadingStorage(false);
+    } catch (error) {
+      console.error('Error storing token:', error);
     }
   };
 
@@ -72,11 +65,12 @@ const LoginScreen = ({registerUser}) => {
           },
         },
       );
-      storeData(response.data.data.token);
+
+      storeToken(response.data.data.token); // Store token in AsyncStorage
       setEmail('');
       setPassword('');
       showToast('success', 'Sukses', 'Selamat Datang');
-      registerUser(response.data);
+      registerUser(response.data);  // Save user data to Redux store
       navigation.navigate('Tab');
     } catch (error) {
       if (error.response && error.response.status === 422) {
@@ -148,7 +142,7 @@ const LoginScreen = ({registerUser}) => {
           />
           <ButtonGray
             title="Buat Akun Baru"
-            onPress={() => navigation.navigate('RegisterScreen')}
+            onPress={handleCreateAccountPress}
           />
         </View>
       </ScrollView>
@@ -264,6 +258,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
 const mapDispatchToProps = {
   registerUser,
 };

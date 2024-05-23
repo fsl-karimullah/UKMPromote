@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,15 +9,16 @@ import {
   Alert,
   Button,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
-import {widthPercentageToDP} from 'react-native-responsive-screen';
+import { widthPercentageToDP } from 'react-native-responsive-screen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {COLOR_PRIMARY} from '../../resources/colors';
-import {InterBold, InterMedium} from '../../resources/fonts';
-import {useDispatch, useSelector} from 'react-redux';
-import {endpoint} from '../../api/endpoint';
+import { COLOR_PRIMARY } from '../../resources/colors';
+import { InterBold, InterMedium } from '../../resources/fonts';
+import { useDispatch, useSelector } from 'react-redux';
+import { endpoint } from '../../api/endpoint';
 import axios from 'axios';
 import Modal from 'react-native-modal';
 import ButtonGray from '../../components/Buttons/ButtonGray';
@@ -31,10 +32,8 @@ import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
 import { check, request, PERMISSIONS } from 'react-native-permissions';
 import * as ImagePicker from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { skipToken } from '@reduxjs/toolkit/query';
 
-
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
   const userData = useSelector(state => state.user);
@@ -42,8 +41,10 @@ const ProfileScreen = ({navigation}) => {
   const [username, setUsername] = useState(userData.data.name);
   const [email, setEmail] = useState(userData.data.email);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [profile, setProfile] = useState([]);
-  const [Avatar, setAvatar] = useState()
+  const [profile, setProfile] = useState({});
+  const [Avatar, setAvatar] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     getTokenData();
   }, []);
@@ -53,21 +54,18 @@ const ProfileScreen = ({navigation}) => {
       const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        getProfile(value);
+        await getProfile(value);
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
-  }; 
-
-  useEffect(() => {
-    getTokenData();
-    getProfile();
-  }, []);
+  };
 
   const handleUsernameChange = text => {
     setUsername(text);
@@ -82,55 +80,56 @@ const ProfileScreen = ({navigation}) => {
   };
 
   const removeValue = async () => {
-  try {
-    await AsyncStorage.removeItem('@userToken')
-  } catch(e) {
-    console.log(e);
-  }
-
-}
-const getProfile = async (token) => {
-  try {
-    const response = await axios.get(endpoint.updateProfile, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.status === 200) {
-      setProfile(response.data.data); 
-      setAvatar(response.data.data.avatar);
-    } else {
-      console.error('Failed to fetch profile:', response.status, response.statusText);
-      // Alert.alert('Failed to fetch profile. Please try again.');
-    }
-  } catch (error) {
-    console.error('Error fetching profile:', error.message);
-    // Alert.alert('An error occurred while fetching profile. Please try again.');
-  }
-};
-
-const handleLogout = async () => {
-  try {
-    const response = await axios.get(endpoint.logoutUser, {
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    });
-
-    if (response.status === 200) {
+    try {
       await AsyncStorage.removeItem('@userToken');
-      await AsyncStorage.setItem('isLoggedIn', 'false');
-      navigation.navigate('Intro');
-    } else {
-      console.error('Logout failed:', response.status, response.statusText);
-      // Alert.alert('Logout failed. Please try again.');
+    } catch (e) {
+      console.log(e);
     }
-  } catch (error) {
-    console.error('Logout error:', error.message);
-    // Alert.alert('An error occurred while logging out. Please try again.');
-  }
-};
+  };
+
+  const getProfile = async (token) => {
+    try {
+      const response = await axios.get(endpoint.updateProfile, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setProfile(response.data.data);
+        setAvatar(response.data.data.avatar);
+      } else {
+        console.error(
+          'Failed to fetch profile:',
+          response.status,
+          response.statusText,
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get(endpoint.logoutUser, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.status === 200) {
+        await AsyncStorage.removeItem('@userToken');
+        await AsyncStorage.setItem('isLoggedIn', 'false');
+        navigation.navigate('Intro');
+      } else {
+        console.error('Logout failed:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Logout error:', error.message);
+    }
+  };
+
   const handleUploadPress = async () => {
     try {
       const result = await ImagePicker.launchImageLibrary({
@@ -139,8 +138,8 @@ const handleLogout = async () => {
       });
 
       if (!result.didCancel) {
-        console.log('Selected Image:', result.uri); 
-        setAvatar(result.uri)
+        console.log('Selected Image:', result.uri);
+        setAvatar(result.uri);
       }
     } catch (error) {
       console.error('ImagePicker Error:', error);
@@ -153,7 +152,7 @@ const handleLogout = async () => {
         Platform.select({
           ios: PERMISSIONS.IOS.CAMERA,
           android: PERMISSIONS.ANDROID.CAMERA,
-        })
+        }),
       );
 
       if (cameraPermission === 'granted') {
@@ -164,14 +163,14 @@ const handleLogout = async () => {
 
         if (!result.didCancel) {
           console.log('Captured Image:', result.uri);
-          setAvatar(result.uri)
+          setAvatar(result.uri);
         }
       } else {
         const requestPermissionResult = await request(
           Platform.select({
             ios: PERMISSIONS.IOS.CAMERA,
             android: PERMISSIONS.ANDROID.CAMERA,
-          })
+          }),
         );
 
         if (requestPermissionResult === 'granted') {
@@ -179,7 +178,7 @@ const handleLogout = async () => {
         } else {
           Alert.alert(
             'Permission Denied',
-            'You need to grant camera permission to use this feature.'
+            'You need to grant camera permission to use this feature.',
           );
         }
       }
@@ -187,23 +186,30 @@ const handleLogout = async () => {
       console.error('ImagePicker Error:', error);
     }
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLOR_PRIMARY} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View>
         <Image
           source={{
-            uri: Avatar
-              ? Avatar
-              : 'https://place-hold.it/200x200',
+            uri: Avatar ? Avatar : 'https://place-hold.it/200x200',
           }}
           style={styles.profileImage}
         />
         <Pressable onPress={() => setShowModal(true)}>
           <Text style={styles.title}>Upload foto</Text>
         </Pressable>
-      </View> 
+      </View>
 
-      <Modal 
+      <Modal
         isVisible={showModal}
         onBackdropPress={() => setShowModal(false)}
         style={styles.modal}
@@ -230,7 +236,7 @@ const handleLogout = async () => {
                 onPress={handleCameraPress}
                 style={styles.optionContainer}>
                 <View style={styles.iconContainer}>
-                  <Icon name="camera" size={30} color="black" /> 
+                  <Icon name="camera" size={30} color="black" />
                 </View>
                 <Text>Kamera</Text>
               </TouchableOpacity>
@@ -238,7 +244,7 @@ const handleLogout = async () => {
           </View>
           <View style={styles.closeButtonContainer}>
             <Pressable
-              style={styles.closeButton} 
+              style={styles.closeButton}
               onPress={() => setShowModal(false)}>
               <MaterialIcons name="close" size={30} color="#fff" />
             </Pressable>
@@ -261,7 +267,7 @@ const handleLogout = async () => {
           />
         </View>
         <View style={styles.inputWrapper}>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={profile.email}
             onChangeText={handleEmailChange}
@@ -286,7 +292,7 @@ const handleLogout = async () => {
         <MaterialIcon name="logout" size={24} color="#fff" />
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <Modal isVisible={isModalVisible} style={styles.modal}>
           <View style={styles.modalContent}>
             <Text style={styles.textModal}>Apakah anda ingin keluar?</Text>
@@ -302,6 +308,11 @@ const handleLogout = async () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   containerIcon: {
     alignItems: 'center',
     marginTop: 20,
@@ -358,7 +369,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    marginBottom: 16, 
+    marginBottom: 16,
     color: '#333',
     fontFamily: InterBold,
   },
