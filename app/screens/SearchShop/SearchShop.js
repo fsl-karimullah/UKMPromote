@@ -4,11 +4,10 @@ import {
   Text,
   View,
   TextInput,
-  Pressable,
   FlatList,
   RefreshControl,
   ActivityIndicator,
-  TouchableOpacity, // Import TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -55,7 +54,7 @@ const SearchShop = ({navigation}) => {
   const shopDatas = useSelector(state => state.shop.shops);
   const [numColumns, setnumColumns] = useState(2);
   const [categoriesDatas, setcategoriesDatas] = useState();
-  const [searchValue, setsearchValue] = useState();
+  const [searchValue, setsearchValue] = useState('');
   const [filteredShopDatas, setFilteredShopDatas] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
@@ -63,9 +62,7 @@ const SearchShop = ({navigation}) => {
   const [userToken, setUserToken] = useState();
 
   useEffect(() => {
-    // console.log('jkjkjkkj',currentLocation);
     getTokenData();
-
     requestLocationPermission();
   }, []);
 
@@ -74,13 +71,16 @@ const SearchShop = ({navigation}) => {
     fetchCategoryData();
   }, [currentLocation]);
 
+  useEffect(() => {
+    filterShops(searchValue);
+  }, [searchValue, shopDatas]);
+
   const getTokenData = async () => {
     setLoadingStorage(true);
     try {
       const value = await AsyncStorage.getItem('@userToken');
       if (value !== null) {
         setUserToken(value);
-        // console.log('detail Token', value);
       }
     } catch (e) {
       console.error(e);
@@ -111,40 +111,11 @@ const SearchShop = ({navigation}) => {
     }
   };
 
-  const searchAction = async value => {
-    if (!currentLocation) {
-      console.log('Current location is not defined');
-      return;
-    }
-
-    // console.log(`Searching for "${value}" at lat: ${currentLocation.latitude}, lng: ${currentLocation.longitude}`);
-
-    setisLoading(true);
-    try {
-      const url = endpoint.searchShop(
-        currentLocation.latitude,
-        currentLocation.longitude,
-        value,
-      );
-      console.log(`Request URL: ${url}`);
-
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-
-      console.log('Search response:', response.data);
-      setFilteredShopDatas(response.data.data);
-    } catch (error) {
-      console.log('Search error:', error);
-      console.log(
-        'Error details:',
-        error.response ? error.response.data : error.message,
-      );
-    } finally {
-      setisLoading(false);
-    }
+  const filterShops = value => {
+    const filtered = shopDatas.filter(shop =>
+      shop.name.toLowerCase().includes(value.toLowerCase()),
+    );
+    setFilteredShopDatas(filtered);
   };
 
   const fetchShopData = async () => {
@@ -165,8 +136,6 @@ const SearchShop = ({navigation}) => {
           },
         },
       );
-      console.log(response);
-
       dispatch(fetchShopDataSuccess(response.data.data));
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
@@ -194,8 +163,6 @@ const SearchShop = ({navigation}) => {
           },
         },
       );
-      console.log(response);
-
       dispatch(fetchShopDataSuccess(response.data.data));
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
@@ -212,13 +179,13 @@ const SearchShop = ({navigation}) => {
           Authorization: `Bearer ${userToken}`,
         },
       });
-      console.log(response.data.data);
 
-      setcategoriesDatas(response.data.data);
-      dispatch(fetchCategorySuccess(response.data.data));
+      const allCategories = [{id: 'all', name: 'Semua'}, ...response.data.data];
+
+      setcategoriesDatas(allCategories);
+      dispatch(fetchCategorySuccess(allCategories));
     } catch (error) {
       dispatch(fetchCategoryFailure(error.message));
-      console.log('category error', error);
     } finally {
       setisLoading(false);
     }
@@ -243,26 +210,22 @@ const SearchShop = ({navigation}) => {
   );
 
   const handleCategoryPress = categoryId => {
-    fetchShopDataByFilter(categoryId);
+    if (categoryId === 'all') {
+      fetchShopData();
+    } else {
+      fetchShopDataByFilter(categoryId);
+    }
     setActiveCategoryId(categoryId);
-  };
-
-  const resetFilter = () => {
-    setRefreshing(true);
-    fetchShopData();
-    setsearchValue(null);
-    setRefreshing(false);
-    setActiveCategoryId(null);
-    searchAction(searchValue);
   };
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchShopData();
-    setsearchValue(null);
+    setsearchValue('');
     setRefreshing(false);
     setActiveCategoryId(null);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchBarContainer}>
@@ -274,11 +237,6 @@ const SearchShop = ({navigation}) => {
             value={searchValue}
             onChangeText={text => setsearchValue(text)}
           />
-          <Pressable
-            onPress={() => searchAction(searchValue)}
-            style={styles.searchButton}>
-            <Text style={styles.searchButtonText}>Cari</Text>
-          </Pressable>
         </View>
 
         <View style={styles.containerCategory}>
@@ -324,16 +282,6 @@ const SearchShop = ({navigation}) => {
           </View>
         </View>
       </Modal>
-
-      <TouchableOpacity style={styles.resetFilterButton} onPress={resetFilter}>
-        <Text style={styles.resetFilterButtonText}>Reset Filter</Text>
-        <Icon
-          name="refresh"
-          size={20}
-          color="white"
-          style={styles.resetFilterButtonIcon}
-        />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -342,6 +290,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 5,
+    backgroundColor: 'white',
   },
   searchBarContainer: {
     marginTop: 10,
@@ -349,7 +298,6 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: heightPercentageToDP(8),
     borderColor: '#E0E0E0',
     borderWidth: 1,
     borderRadius: 10,
@@ -357,17 +305,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#FFFFFF',
     elevation: 2,
-  },
-  searchButton: {
-    marginRight: 8,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: COLOR_PRIMARY,
-  },
-  searchButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontFamily: InterBold,
   },
   searchInput: {
     flex: 1,
@@ -406,26 +343,6 @@ const styles = StyleSheet.create({
   },
   containerCategory: {
     marginVertical: 10,
-  },
-  resetFilterButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: COLOR_PRIMARY,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  resetFilterButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: InterBold,
-  },
-  resetFilterButtonIcon: {
-    marginLeft: 10,
-    alignSelf: 'center',
   },
 });
 

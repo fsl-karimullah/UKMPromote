@@ -38,13 +38,13 @@ const DetailShop = ({navigation, route}) => {
   const userData = useSelector(selectUserData);
 
   useEffect(() => {
-    console.log(shopDetails);
+    // console.log(shopDetails);
     const getTokenData = async () => {
       try {
         const value = await AsyncStorage.getItem('@userToken');
         if (value !== null) {
           setUserToken(value);
-          console.log('detail Token', value);
+          // console.log('detail Token', value);
         }
       } catch (e) {
         console.error(e);

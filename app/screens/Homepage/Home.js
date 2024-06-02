@@ -73,26 +73,26 @@ const Home = ({navigation}) => {
   const [isAcceptLocation, setisAcceptLocation] = useState(false);
   const [NewsData, setNewsData] = useState([]);
 
-  const menuData = [
-    {
-      id: '1',
-      title: 'Pendanaan UMKM',
-      icon: 'money',
-      route: 'ComingSoonScreen',
-    },
-    {
-      id: '2',
-      title: 'Konsultasi Bisnis',
-      icon: 'handshake',
-      route: 'ComingSoonScreen',
-    },
-    {
-      id: '3',
-      title: 'Pembuatan Website',
-      icon: 'web',
-      route: 'ComingSoonScreen',
-    },
-  ];
+  // const menuData = [
+  //   {
+  //     id: '1',
+  //     title: 'Area Pebisnis',
+  //     icon: 'money',
+  //     route: 'ComingSoonScreen',
+  //   },
+  //   {
+  //     id: '2',
+  //     title: 'Konsultasi Bisnis',
+  //     icon: 'handshake',
+  //     route: 'ComingSoonScreen',
+  //   },
+  //   {
+  //     id: '3',
+  //     title: 'Pembuatan Website',
+  //     icon: 'web',
+  //     route: 'ComingSoonScreen',
+  //   },
+  // ];
 
   const getTokenData = async () => {
     try {
@@ -103,7 +103,7 @@ const Home = ({navigation}) => {
     } catch (error) {
       console.error('Error getting user token:', error);
     }
-  };
+  }; 
 
   useEffect(() => {
     fetchShopData();
@@ -211,7 +211,7 @@ const Home = ({navigation}) => {
     } finally {
       setisLoading(false);
     }
-  };
+  }; 
 
   const bannerImages = [
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
@@ -275,7 +275,7 @@ const Home = ({navigation}) => {
           />
         </View>
 
-        <View style={styles.containerMenu}>
+        {/* <View style={styles.containerMenu}>
           <FlatList
             data={menuData}
             renderItem={renderItemMenu}
@@ -284,7 +284,7 @@ const Home = ({navigation}) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.listContainer}
           />
-        </View>
+        </View> */}
 
         <View style={styles.containerCard}>
           <TitleWithArrow
@@ -298,6 +298,7 @@ const Home = ({navigation}) => {
               <FlatList
                 data={shopDatasAll}
                 horizontal
+                initialNumToRender={5}
                 keyExtractor={item => item.id}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({item}) => (
@@ -337,11 +338,12 @@ const Home = ({navigation}) => {
             <FlatList
               data={shopDatas}
               horizontal
+              initialNumToRender={5}
               keyExtractor={item => item.id}
               showsHorizontalScrollIndicator={false}
               renderItem={({item}) => (
                 <ShopCardLarge
-                  title={item.name}
+                  title={item.name} 
                   subtitle={item.regency}
                   anotherData={item.likes_count}
                   image={item.thumbnail}
@@ -408,6 +410,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // paddingBottom:heightPercentageToDP(2)
+    backgroundColor:'white'
   },
 
   appBar: {

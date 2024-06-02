@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "918636014540",
+    "project_id": "brandin-notification",
+    "storage_bucket": "brandin-notification.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918636014540:android:82e20efc6409fec34d0b69",
+        "android_client_info": {
+          "package_name": "com.ukmpromote"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkpfIa6MKByNpkidEoyPWvBZuptUuXCr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -32,6 +32,7 @@ import BussinessClass from '../screens/Education/BussinessClass';
 import BusinessClassDetail from '../screens/Education/BussinessClassDetail';
 import NewsDetails from '../screens/News/NewsDetails';
 import ListAllNews from '../screens/News/ListAllNews';
+import BussinessAreaScreen from '../screens/BussinessArea/BussinessAreaScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -91,10 +92,10 @@ function MyTabs() {
         component={Fav}
       />
       <Tab.Screen
-        name="BussinessClass"
+        name="BussinessAreaScreen"
         options={{
           headerTitle: 'Halaman Entepreneur Bisnis',
-          tabBarLabel: 'Edukasi Bisnis',
+          tabBarLabel: 'Area Pebisnis',
           headerStyle: {
             backgroundColor: COLOR_PRIMARY,
           },
@@ -103,7 +104,7 @@ function MyTabs() {
             <MaterialCommunityIcon name="school" color={color} size={size} />
           ),
         }}
-        component={BussinessClass}
+        component={BussinessAreaScreen}
       />
       <Tab.Screen
         name="ProfileScreen"
@@ -270,7 +271,18 @@ function MainAppStack() {
         name="BussinessDetailScreen"
         component={BusinessClassDetail}
         options={{
-          headerTitle: 'Edukasi Bisnis',
+          headerTitle: 'Kelas Bisnis Detail',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="BussinessVideo"
+        component={BussinessClass}
+        options={{
+          headerTitle: 'Kelas Bisnis',
           headerStyle: {
             backgroundColor: COLOR_PRIMARY,
           },

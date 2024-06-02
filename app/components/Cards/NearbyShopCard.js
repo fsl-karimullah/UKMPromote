@@ -12,13 +12,13 @@ const NearbyShopCard = ({ name, distance, likes_count, address, image, onPress }
       <View style={styles.contentContainer}>
         <Text style={styles.title}>{name}</Text>
         <View style={styles.likesContainer}>
-          <Icon name="heart" size={14} color={COLOR_PRIMARY} style={styles.heartIcon} />
+          <Icon name="heart" size={12} color={COLOR_PRIMARY} style={styles.heartIcon} />
           <Text style={styles.likesText}>{likes_count}</Text>
         </View>
         <Text style={styles.address}>{address}</Text>
         <View style={styles.footer}>
           <View style={styles.distanceContainer}>
-            <Icon name="map-marker-alt" size={14} color={COLOR_PRIMARY} />
+            <Icon name="map-marker-alt" size={12} color={COLOR_PRIMARY} />
             <Text style={styles.distanceText}>Sekitar {distance} km</Text>
           </View>
         </View>
@@ -29,60 +29,62 @@ const NearbyShopCard = ({ name, distance, likes_count, address, image, onPress }
 
 const styles = StyleSheet.create({
   container: {
-    width: widthPercentageToDP(90),
-    borderRadius: 15,
+    width: widthPercentageToDP(45),
+    borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 16,
     backgroundColor: '#fff',
     elevation: 2,
+    marginRight:10
   },
   image: {
     width: '100%',
-    height: heightPercentageToDP(20),
+    height: heightPercentageToDP(12),
     resizeMode: 'cover',
   },
   contentContainer: {
-    padding: 12,
+    padding: 8,
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
     fontFamily: InterBold,
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   likesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   heartIcon: {
-    marginRight: 4,
+    marginRight: 2,
   },
   likesText: {
-    fontSize: 14,
+    fontSize: 12,
     color: COLOR_PRIMARY,
     fontFamily: InterBold,
   },
   address: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#888',
-    marginBottom: 4,
+    marginBottom: 2,
     fontFamily: InterMedium,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
   distanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   distanceText: {
-    marginLeft: 4,
+    marginLeft: 2,
     color: COLOR_PRIMARY,
     fontFamily: InterMedium,
+    fontSize:12
   },
 });
 

@@ -47,6 +47,15 @@ const ProfileScreen = ({navigation}) => {
   const [profile, setProfile] = useState({});
   const [Avatar, setAvatar] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
 
   useEffect(() => {
     getTokenData();
@@ -82,7 +91,11 @@ const ProfileScreen = ({navigation}) => {
     setPasswordConfirmation(text);
   };
 
-  const handleEditProfile = async () => {
+  const handleEditProfile = () => {
+    setShowEditModal(true);
+  };
+
+  const handleSaveProfile = async () => {
     try {
       const response = await axios.patch(
         endpoint.updateProfile,
@@ -102,17 +115,19 @@ const ProfileScreen = ({navigation}) => {
         showToast(
           'success',
           'Berhasil',
-          'Profile berhasil di upgrade, silahkan login lagi',
+          'Profile berhasil diupgrade, silahkan login lagi',
         );
+        await AsyncStorage.removeItem('@userToken');
+        await AsyncStorage.setItem('isLoggedIn', 'false');
+        setShowEditModal(false);
         navigation.navigate('Intro');
-      } else {
+      } else { 
         console.log('Failed to update profile', response.statusText);
-        showToast('error', 'Gagal', 'Profile gagal di update');
+        showToast('error', 'Gagal', 'Profile gagal diupdate');
       }
     } catch (error) {
       console.error('Error updating profile:', error.message);
-      showToast('error', 'Gagal', 'Profile gagal di update');
-      // Alert.alert('Error updating profile', error.message);
+      showToast('error', 'Gagal', 'Profile gagal diupdate');
     }
   };
 
@@ -151,6 +166,8 @@ const ProfileScreen = ({navigation}) => {
   };
 
   const handleLogout = async () => {
+    toggleLogoutModal();
+
     try {
       const response = await axios.get(endpoint.logoutUser, {
         headers: {
@@ -237,6 +254,88 @@ const ProfileScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <Modal
+        isVisible={showEditModal}
+        onBackdropPress={() => setShowEditModal(false)}
+        style={styles.modal}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropTransitionOutTiming={0}
+        backdropOpacity={0.5}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Edit Profile</Text>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              value={username}
+              onChangeText={handleUsernameChange}
+              placeholder="Username Baru"
+            />
+            <MaterialIcon
+              name="pencil"
+              size={20}
+              color="#555"
+              style={styles.inputIcon}
+            />
+          </View>
+          <Text style={styles.textWarning}>Jika anda mengubah password, anda akan diarahkan untuk login lagi. Selalu ingat password anda</Text>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={handlePasswordChange}
+              placeholder="Password Baru"
+              secureTextEntry
+            />
+            <MaterialIcon
+              name="pencil"
+              size={20}
+              color="#555"
+              style={styles.inputIcon}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              value={passwordConfirmation}
+              onChangeText={handlePasswordConfirmationChange}
+              placeholder="Konfirmasi Password"
+              secureTextEntry
+            />
+            <MaterialIcon
+              name="pencil" 
+              size={20}
+              color="#555"
+              style={styles.inputIcon}
+            />
+          </View>
+          <View style={styles.buttonContainer}>
+            <ButtonPrimary title="Simpan" onPress={handleSaveProfile} />
+            <ButtonGray
+              title="Batal"
+              onPress={() => setShowEditModal(false)}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        isVisible={showLogoutModal}
+        onBackdropPress={toggleLogoutModal}
+        style={styles.modal}
+        animationIn="fadeIn"
+        animationOut="fadeOut"
+        backdropTransitionOutTiming={0}
+        backdropOpacity={0.5}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Konfirmasi Logout</Text>
+          <Text style={styles.modalText}>Apakah anda yakin akan keluar ?</Text>
+          <View style={styles.buttonContainer}>
+            <ButtonPrimary title={'Oke'} onPress={handleLogout} />
+            <ButtonGray title={'Tidak'} onPress={toggleLogoutModal} />
+          </View>
+        </View>
+      </Modal>
       <View>
         <Image
           source={{
@@ -297,6 +396,7 @@ const ProfileScreen = ({navigation}) => {
             style={styles.input}
             value={username}
             onChangeText={handleUsernameChange}
+            editable={false}
             placeholder="Tulis username anda"
           />
           <MaterialIcon
@@ -320,7 +420,7 @@ const ProfileScreen = ({navigation}) => {
             style={styles.inputIcon}
           />
         </View>
-        <View style={styles.inputWrapper}>
+        {/* <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
             value={password}
@@ -334,8 +434,8 @@ const ProfileScreen = ({navigation}) => {
             color="#555"
             style={styles.inputIcon}
           />
-        </View>
-        <View style={styles.inputWrapper}>
+        </View> */}
+        {/* <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
             value={passwordConfirmation}
@@ -349,14 +449,16 @@ const ProfileScreen = ({navigation}) => {
             color="#555"
             style={styles.inputIcon}
           />
-        </View>
+        </View> */}
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
           <MaterialIcon name="content-save" size={20} color="#fff" />
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={toggleLogoutModal}>
           <MaterialIcons name="logout" size={20} color="#fff" />
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
@@ -370,6 +472,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  textWarning:{
+    textAlign:'center',
+    fontFamily:InterMedium,
+    color:'#000',
+    marginBottom:10
   },
   containerIcon: {
     alignItems: 'center',
@@ -425,12 +533,21 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
+
   modalTitle: {
     fontSize: 20,
-    marginBottom: 16,
+    marginBottom: 10,
     color: '#333',
     fontFamily: InterBold,
   },
+
+  modalText: {
+    marginBottom: 20,
+    textAlign: 'center',
+    fontFamily: InterMedium,
+    fontSize: 15,
+  },
+
   buttonContainer: {
     flexDirection: 'column',
   },

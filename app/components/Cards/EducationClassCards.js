@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_BLACK } from '../../resources/colors';
 
-const EducationClassCards = ({ title, desc, imageSource, onPress }) => {
+const EducationClassCards = ({ title, desc, imageSource, onPress, isFree }) => {
   const scaleValue = React.useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
@@ -36,8 +36,8 @@ const EducationClassCards = ({ title, desc, imageSource, onPress }) => {
       <Image source={imageSource} style={styles.cardImage} />
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardDesc}>{desc}</Text>
-      <View style={styles.tagContainer}>
-        <Text style={styles.tag}>Free</Text>
+      <View style={isFree ? styles.tagContainer : styles.tagPremium}>
+        <Text style={styles.tag}>{isFree}</Text>
       </View>
       <Animated.View
         style={[
@@ -85,6 +85,15 @@ const styles = StyleSheet.create({
     top: 8,
     left: 8,
     backgroundColor: '#007bff',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 5,
+  },
+  tagPremium: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: '#DAA520',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 5,

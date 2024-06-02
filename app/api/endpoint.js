@@ -8,6 +8,8 @@ export const endpoint = {
   forgotPassword: `${url}/api/auth/forgot-password`,
   updateProfile: `${url}/api/me`,
   getProfile: `${url}/api/me`,
+  getEducation: `${url}/api/education`,
+  getEducationById:(id) => `${url}/api/education/${id}`,
   searchShop: (lat, lng, value) => `${url}/api/shops?q=${value}&lat=${lat}&lng=${lng}`,
   getCities: (provinceId) => `${url}/api/cities?province_id=${provinceId}`,
   getDistrict: (cityId) => `${url}/api/districts?city_id=${cityId}`,

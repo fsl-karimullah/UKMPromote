@@ -14,6 +14,7 @@ import {endpoint} from '../../api/endpoint';
 import axios from 'axios';
 import {showToast} from '../../resources/helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import EmptyComponentFirst from '../../components/EmptyComponent/EmptyComponentFirst'
 
 const Fav = ({navigation}) => {
   const dispatch = useDispatch();
@@ -84,6 +85,7 @@ const Fav = ({navigation}) => {
       ) : (
         <FlatList
           data={favorites}
+          ListEmptyComponent={EmptyComponentFirst}
           keyExtractor={item => item.id.toString()}
           renderItem={renderFavItem}
           refreshing={refreshing}
