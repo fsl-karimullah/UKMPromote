@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -13,26 +13,26 @@ import NearbyShopCard from '../../components/Cards/NearbyShopCard';
 import Geolocation from '@react-native-community/geolocation';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch, useSelector } from 'react-redux';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { endpoint } from '../../api/endpoint';
-import { COLOR_PRIMARY } from '../../resources/colors';
+import {useDispatch, useSelector} from 'react-redux';
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {endpoint} from '../../api/endpoint';
+import {COLOR_PRIMARY} from '../../resources/colors';
 import {
   fetchShopDataStart,
   fetchShopDataSuccess,
   fetchShopDataFailure,
 } from '../../redux/slices/ShopSlice';
-import { getDistance } from 'geolib';
+import {getDistance} from 'geolib';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { showToast } from '../../resources/helper';
+import {showToast} from '../../resources/helper';
 import EmptyComponent from '../../components/EmptyComponent/EmptyComponent';
 
-const NearbyScreen = ({ navigation }) => {
+const NearbyScreen = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [userToken, setUserToken] = useState();
   const [currentLocation, setCurrentLocation] = useState(null);
   const dispatch = useDispatch();
-  const [isLoading, setisLoading] = useState(true); 
+  const [isLoading, setisLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const shopDatas = useSelector(state => state.shop.shops);
   const [filteredShops, setFilteredShops] = useState([]);
@@ -45,7 +45,7 @@ const NearbyScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    fetchShopData(); 
+    fetchShopData();
   }, [currentLocation]);
 
   useEffect(() => {
@@ -84,20 +84,42 @@ const NearbyScreen = ({ navigation }) => {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation({ latitude, longitude });
+        const {latitude, longitude} = position.coords;
+        setCurrentLocation({latitude, longitude});
+        // console.log(latitude, longitude);
       },
       error => console.log('Error getting location:', error),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
     setisAcceptLocation(true);
+  };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (
+      !lat1 ||
+      !lon1 ||
+      !lat2 ||
+      !lon2 ||
+      lat1 === '0.00000000' ||
+      lon1 === '0.00000000' ||
+      lat2 === '0.00000000' ||
+      lon2 === '0.00000000'
+    ) {
+      console.log('Invalid coordinates');
+      return null;
+    }
+    const distance = getDistance(
+      {latitude: parseFloat(lat1), longitude: parseFloat(lon1)},
+      {latitude: parseFloat(lat2), longitude: parseFloat(lon2)},
+    );
+    return (distance / 1000).toFixed(2);
   };
 
   const fetchShopData = async () => {
     if (!currentLocation) {
       return;
     }
-    setisLoading(true); 
+    setisLoading(true);
     try {
       const response = await axios.get(
         endpoint.getShop(currentLocation.latitude, currentLocation.longitude),
@@ -107,58 +129,51 @@ const NearbyScreen = ({ navigation }) => {
           },
         },
       );
-      const shopsWithDistance = response.data.data.map(shop => ({
-        ...shop,
-        distance: calculateDistance(
-          currentLocation.latitude,
-          currentLocation.longitude,
-          shop.lat,
-          shop.lng,
-        ),
-      }));
+      const shopsWithDistance = response.data.data
+        .map(shop => ({
+          ...shop,
+          distance: calculateDistance(
+            currentLocation.latitude,
+            currentLocation.longitude,
+            shop.lat,
+            shop.lng,
+          ),
+        }))
+        .filter(shop => shop.distance !== null && parseFloat(shop.distance) <= 5);
       dispatch(fetchShopDataSuccess(shopsWithDistance));
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
     } finally {
-      setisLoading(false); 
+      setisLoading(false);
     }
   };
+  
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await getCurrentLocation(); 
-    await fetchShopData(); 
+    await getCurrentLocation();
+    await fetchShopData();
     setRefreshing(false);
   };
 
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) {
-      console.log('Invalid coordinates');
-      return 'Invalid coordinates';
-    }
-    const distance = getDistance(
-      { latitude: lat1, longitude: lon1 },
-      { latitude: lat2, longitude: lon2 },
-    );
-    return (distance / 1000).toFixed(2);
-  };
+  
 
   const filterShops = () => {
     const filtered = shopDatas.filter(shop =>
-      shop.name.toLowerCase().includes(searchQuery.toLowerCase())
+      shop.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
     setFilteredShops(filtered);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={{ display: 'flex', alignItems: 'center' }}>
+  const renderItem = ({item}) => (
+    <View style={{display: 'flex', alignItems: 'center'}}>
       <NearbyShopCard
         name={item.name}
         distance={item.distance}
         likes_count={item.likes_count}
         address={item.regency}
         image={item.thumbnail}
-        onPress={() => navigation.navigate('DetailShop', { id: item.id })}
+        onPress={() => navigation.navigate('DetailShop', {id: item.id})}
       />
     </View>
   );
@@ -175,9 +190,10 @@ const NearbyScreen = ({ navigation }) => {
       </View>
       <TouchableOpacity
         style={styles.locationButton}
-        onPress={() => getCurrentLocation()}
-      >
-        <Text style={styles.locationButtonText}>Klik disini jika anda ingin mengubah lokasi</Text>
+        onPress={() => getCurrentLocation()}>
+        <Text style={styles.locationButtonText}>
+          Klik disini jika anda ingin mengubah lokasi
+        </Text>
       </TouchableOpacity>
       {isLoading ? (
         <ActivityIndicator size={'large'} color={COLOR_PRIMARY} />
@@ -205,7 +221,6 @@ const NearbyScreen = ({ navigation }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
