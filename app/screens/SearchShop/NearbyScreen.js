@@ -89,10 +89,31 @@ const NearbyScreen = ({navigation}) => {
         // console.log(latitude, longitude);
       },
       error => console.log('Error getting location:', error),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+      {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
     );
     setisAcceptLocation(true);
   };
+
+  // const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  //   if (
+  //     !lat1 ||
+  //     !lon1 ||
+  //     !lat2 ||
+  //     !lon2 ||
+  //     lat1 === '0.00000000' ||
+  //     lon1 === '0.00000000' ||
+  //     lat2 === '0.00000000' ||
+  //     lon2 === '0.00000000'
+  //   ) {
+  //     console.log('Invalid coordinates');
+  //     return null;
+  //   }
+  //   const distance = getDistance(
+  //     {latitude: parseFloat(lat1), longitude: parseFloat(lon1)},
+  //     {latitude: parseFloat(lat2), longitude: parseFloat(lon2)},
+  //   );
+  //   return (distance / 1000).toFixed(2);
+  // };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (
@@ -108,35 +129,45 @@ const NearbyScreen = ({navigation}) => {
       console.log('Invalid coordinates');
       return null;
     }
-    const distance = getDistance(
-      {latitude: parseFloat(lat1), longitude: parseFloat(lon1)},
-      {latitude: parseFloat(lat2), longitude: parseFloat(lon2)},
-    );
-    return (distance / 1000).toFixed(2);
+  
+    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+  
+    const R = 6371; 
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+  
+    return distance.toFixed(2);
   };
 
   const fetchShopData = async () => {
+    // console.log(currentLocation.latitude, currentLocation.longitude);
     if (!currentLocation) {
       return;
     }
-    setisLoading(true);
+    setisLoading(true); 
     try {
       const response = await axios.get(
         endpoint.getShop(currentLocation.latitude, currentLocation.longitude),
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
-          },
+          }, 
         },
       );
       const shopsWithDistance = response.data.data
         .map(shop => ({
           ...shop,
           distance: calculateDistance(
-            currentLocation.latitude,
-            currentLocation.longitude,
-            shop.lat,
-            shop.lng,
+            parseFloat(currentLocation.latitude),
+            parseFloat(currentLocation.longitude),
+            parseFloat(shop.lat),
+            parseFloat(shop.lng),
           ),
         }))
         .filter(shop => shop.distance !== null && parseFloat(shop.distance) <= 5);
@@ -192,7 +223,7 @@ const NearbyScreen = ({navigation}) => {
         style={styles.locationButton}
         onPress={() => getCurrentLocation()}>
         <Text style={styles.locationButtonText}>
-          Klik disini jika anda ingin mengubah lokasi
+          Ubah Lokasi
         </Text>
       </TouchableOpacity>
       {isLoading ? (
