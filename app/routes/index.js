@@ -33,6 +33,9 @@ import BusinessClassDetail from '../screens/Education/BussinessClassDetail';
 import NewsDetails from '../screens/News/NewsDetails';
 import ListAllNews from '../screens/News/ListAllNews';
 import BussinessAreaScreen from '../screens/BussinessArea/BussinessAreaScreen';
+import TemplateWebsiteScreen from '../screens/TemplateWebsiteScreen/TemplateWebsiteScreen';
+import MentorScreen from '../screens/Mentors/MentorScreen';
+import TermsAndConditions from '../screens/Mentors/TermsAndConditions';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -217,6 +220,39 @@ function MainAppStack() {
         component={EducationScreen}
         options={{
           headerTitle: 'Artikel dan Edukasi',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="TemplateWebsiteScreen"
+        component={TemplateWebsiteScreen}
+        options={{
+          headerTitle: 'Pilihan Template',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="MentorScreen"
+        component={MentorScreen}
+        options={{
+          headerTitle: 'Mentor',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="TermsAndConditions"
+        component={TermsAndConditions}
+        options={{
+          headerTitle: 'Syarat & Ketentuan Mentoring',
           headerStyle: {
             backgroundColor: COLOR_PRIMARY,
           },

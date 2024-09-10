@@ -1,6 +1,7 @@
 // BannerSlider.js
 import React from 'react';
 import { View, StyleSheet, Image, Pressable } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Carousel from 'react-native-reanimated-carousel';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 
@@ -17,6 +18,7 @@ const styles = StyleSheet.create({
 
 const BannerSlider = ({ images, onClick }) => {
   return (
+    <GestureHandlerRootView style={{flex:1}}>
     <Pressable style={styles.bannerContainer} onPress={onClick}>
       <Carousel
         width={widthPercentageToDP(90)}
@@ -32,6 +34,7 @@ const BannerSlider = ({ images, onClick }) => {
         )}
       />
     </Pressable>
+    </GestureHandlerRootView>
   );
 };
 

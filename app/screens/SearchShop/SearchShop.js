@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,16 +10,15 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import {SelectList} from 'react-native-dropdown-select-list';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
-import {endpoint} from '../../api/endpoint';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import {showToast} from '../../resources/helper';
-import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import { showToast } from '../../resources/helper';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
 import {
   fetchCategoryStart,
@@ -33,13 +32,14 @@ import {
 } from '../../redux/slices/ShopSlice';
 import ShopCardVertical from '../../components/Cards/ShopCardVertical';
 import CategoryItem from '../../components/Cards/CategoryItem';
-import {COLOR_PRIMARY} from '../../resources/colors';
-import {InterBold} from '../../resources/fonts';
+import { COLOR_PRIMARY } from '../../resources/colors';
+import { InterBold } from '../../resources/fonts';
 import EmptyComponent from '../../components/EmptyComponent/EmptyComponent';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { endpoint } from '../../api/endpoint';
 
-const SearchShop = ({navigation}) => {
+const SearchShop = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isLoading, setisLoading] = useState(false);
   const userData = useSelector(state => state.user);
@@ -66,10 +66,12 @@ const SearchShop = ({navigation}) => {
     requestLocationPermission();
   }, []);
 
-  useEffect(() => {
-    fetchShopData();
-    fetchCategoryData();
-  }, [currentLocation]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchShopData();
+      fetchCategoryData();
+    }, [currentLocation])
+  );
 
   useEffect(() => {
     filterShops(searchValue);
@@ -101,9 +103,9 @@ const SearchShop = ({navigation}) => {
       }
       Geolocation.getCurrentPosition(
         position => {
-          const {latitude, longitude} = position.coords;
-          setCurrentLocation({latitude, longitude});
-        },
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation({ latitude, longitude });
+        }, 
         error => console.log('Error getting location:', error),
       );
     } catch (error) {
@@ -112,10 +114,17 @@ const SearchShop = ({navigation}) => {
   };
 
   const filterShops = value => {
-    const filtered = shopDatas.filter(shop =>
-      shop.name.toLowerCase().includes(value.toLowerCase()),
+    const filtered = shopDatas.filter(
+      shop =>
+        shop.name.toLowerCase().includes(value.toLowerCase()) ||
+        shop.regency.toLowerCase().includes(value.toLowerCase())
     );
-    setFilteredShopDatas(filtered);
+
+    if (filtered.length === 0) {
+      setFilteredShopDatas(null);
+    } else {
+      setFilteredShopDatas(filtered);
+    }
   };
 
   const fetchShopData = async () => {
@@ -180,7 +189,7 @@ const SearchShop = ({navigation}) => {
         },
       });
 
-      const allCategories = [{id: 'all', name: 'Semua'}, ...response.data.data];
+      const allCategories = [{ id: 'all', name: 'Semua' }, ...response.data.data];
 
       setcategoriesDatas(allCategories);
       dispatch(fetchCategorySuccess(allCategories));
@@ -191,17 +200,17 @@ const SearchShop = ({navigation}) => {
     }
   };
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <ShopCardVertical
       title={item.name}
       image={item.thumbnail}
       likes_count={item.likes_count}
       address={item.regency}
-      onPress={() => navigation.navigate('DetailShop', {id: item.id})}
+      onPress={() => navigation.navigate('DetailShop', { id: item.id })}
     />
   );
 
-  const renderItemCategory = ({item}) => (
+  const renderItemCategory = ({ item }) => (
     <CategoryItem
       category={item}
       active={activeCategoryId === item.id}
@@ -237,6 +246,13 @@ const SearchShop = ({navigation}) => {
             value={searchValue}
             onChangeText={text => setsearchValue(text)}
           />
+          {searchValue.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setsearchValue('')}
+              style={styles.clearButton}>
+              <Icon name="close" size={20} color="#A0A0A0" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.containerCategory}>
@@ -255,7 +271,7 @@ const SearchShop = ({navigation}) => {
       ) : (
         <FlatList
           ListEmptyComponent={EmptyComponent}
-          data={filteredShopDatas.length > 0 ? filteredShopDatas : shopDatas}
+          data={filteredShopDatas === null ? [] : filteredShopDatas.length > 0 ? filteredShopDatas : shopDatas}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
@@ -285,6 +301,7 @@ const SearchShop = ({navigation}) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -310,6 +327,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#333',
+  },
+  clearButton: {
+    padding: 5,
   },
   filterContainer: {
     flexDirection: 'row',

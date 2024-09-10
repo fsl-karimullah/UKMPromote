@@ -1,6 +1,7 @@
 // ShopSlider.js
 import React from 'react';
 import { View, StyleSheet, Image, Pressable } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Carousel from 'react-native-reanimated-carousel';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 
@@ -13,12 +14,13 @@ const styles = StyleSheet.create({
   bannerImage: { 
     flex: 1,
     width:widthPercentageToDP(100),
-    height:heightPercentageToDP(20)
+    height:heightPercentageToDP(20),
   },
 });
 
 const ShopSlider = ({ images, onClick }) => {
   return (
+    <GestureHandlerRootView style={{flex:1}}>
     <Pressable style={styles.bannerContainer} onPress={onClick}>
       <Carousel
         width={widthPercentageToDP(100)}
@@ -34,6 +36,7 @@ const ShopSlider = ({ images, onClick }) => {
         )}
       />
     </Pressable>
+    </GestureHandlerRootView>
   );
 };
 

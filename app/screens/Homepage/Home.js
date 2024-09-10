@@ -1,4 +1,4 @@
-import React, {lazy, useEffect, useState} from 'react';
+import React, {lazy, useEffect, useMemo, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -45,7 +45,7 @@ import {
   fetchAllNewsSuccess,
 } from '../../redux/slices/newsSlices';
 import {endpoint} from '../../api/endpoint';
-import {fetchUserDataFromStorage} from '../../redux/slices/storageSlice'; // Import the action to fetch user data
+import {fetchUserDataFromStorage} from '../../redux/slices/storageSlice';
 import {selectUserData} from '../../redux/selectors/userSelectors';
 import {selectCategoryData} from '../../redux/selectors/categorySelectors';
 import {showToast} from '../../resources/helper';
@@ -59,6 +59,8 @@ import FontAwesome5 from 'react-native-vector-icons/MaterialIcons';
 import EducationalCard from '../../components/Cards/EducationalCards';
 import SmallEducationalCard from '../../components/Cards/SmallEducationalCard';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import EmptyComponent from '../../components/EmptyComponent/EmptyComponent';
+import EmptyNearbyScreen from '../../components/EmptyComponent/EmptyNearbyScreen';
 
 const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
@@ -103,7 +105,7 @@ const Home = ({navigation}) => {
     } catch (error) {
       console.error('Error getting user token:', error);
     }
-  }; 
+  };
 
   useEffect(() => {
     fetchShopData();
@@ -150,13 +152,49 @@ const Home = ({navigation}) => {
     }
   };
 
+  const calculateDistance = useMemo(
+    () => (lat1, lon1, lat2, lon2) => {
+      if (
+        !lat1 ||
+        !lon1 ||
+        !lat2 ||
+        !lon2 ||
+        lat1 === '0.00000000' ||
+        lon1 === '0.00000000' ||
+        lat2 === '0.00000000' ||
+        lon2 === '0.00000000'
+      ) {
+        console.log('Invalid coordinates');
+        return null;
+      }
+
+      const toRadians = degrees => (degrees * Math.PI) / 180;
+
+      const R = 6371;
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) *
+          Math.cos(toRadians(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+
+      return distance.toFixed(2);
+    },
+    [currentLocation],
+  );
+
   const fetchShopData = async () => {
     if (!currentLocation) {
       return;
     }
     setisLoading(true);
-    dispatch(fetchShopDataStart());
     try {
+      console.log('Fetching shop data...');
+      const startTime = Date.now();
       const response = await axios.get(
         endpoint.getShop(currentLocation.latitude, currentLocation.longitude),
         {
@@ -165,10 +203,22 @@ const Home = ({navigation}) => {
           },
         },
       );
-      dispatch(fetchShopDataSuccess(response.data.data));
-      // response.data.data.forEach(item => {
-      //   console.log(item.name);
-      // });
+      const endTime = Date.now();
+      console.log(`API call duration: ${endTime - startTime}ms`);
+      const shopsWithDistance = response.data.data
+        .map(shop => ({
+          ...shop,
+          distance: calculateDistance(
+            parseFloat(currentLocation.latitude),
+            parseFloat(currentLocation.longitude),
+            parseFloat(shop.lat),
+            parseFloat(shop.lng),
+          ),
+        }))
+        .filter(
+          shop => shop.distance !== null && parseFloat(shop.distance) <= 5,
+        );
+      dispatch(fetchShopDataSuccess(shopsWithDistance));
     } catch (error) {
       dispatch(fetchShopDataFailure(error.message));
     } finally {
@@ -211,7 +261,7 @@ const Home = ({navigation}) => {
     } finally {
       setisLoading(false);
     }
-  }; 
+  };
 
   const bannerImages = [
     'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
@@ -335,25 +385,28 @@ const Home = ({navigation}) => {
               </Text>
             </View>
           ) : (
-            <FlatList
-              data={shopDatas}
-              horizontal
-              initialNumToRender={5}
-              keyExtractor={item => item.id}
-              showsHorizontalScrollIndicator={false}
-              renderItem={({item}) => (
-                <ShopCardLarge
-                  title={item.name} 
-                  subtitle={item.regency}
-                  anotherData={item.likes_count}
-                  image={item.thumbnail}
-                  isPopular={item.isPopular}
-                  onPress={() =>
-                    navigation.navigate('DetailShop', {id: item.id})
-                  }
-                />
-              )}
-            />
+            <View style={{display:'flex',justifyContent:'center', alignItems:'center'}}>
+              <FlatList
+                data={shopDatas}
+                horizontal
+                ListEmptyComponent={EmptyNearbyScreen}
+                initialNumToRender={5}
+                keyExtractor={item => item.id}
+                showsHorizontalScrollIndicator={false}
+                renderItem={({item}) => (
+                  <ShopCardLarge
+                    title={item.name}
+                    subtitle={item.regency}
+                    anotherData={item.likes_count}
+                    image={item.thumbnail}
+                    isPopular={item.isPopular}
+                    onPress={() =>
+                      navigation.navigate('DetailShop', {id: item.id})
+                    }
+                  />
+                )}
+              />
+            </View>
           )}
         </View>
 
@@ -410,7 +463,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // paddingBottom:heightPercentageToDP(2)
-    backgroundColor:'white'
+    backgroundColor: 'white',
   },
 
   appBar: {

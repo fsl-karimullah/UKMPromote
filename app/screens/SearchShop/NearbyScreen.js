@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   StyleSheet,
   View,
@@ -82,17 +82,21 @@ const NearbyScreen = ({navigation}) => {
   };
 
   const getCurrentLocation = () => {
+    setisAcceptLocation(false);
     Geolocation.getCurrentPosition(
       position => {
         const {latitude, longitude} = position.coords;
         setCurrentLocation({latitude, longitude});
-        // console.log(latitude, longitude);
+        setisAcceptLocation(true);
       },
-      error => console.log('Error getting location:', error),
+      error => {
+        console.log('Error getting location:', error);
+        setisAcceptLocation(false);
+      },
       {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
     );
-    setisAcceptLocation(true);
   };
+  
 
   // const calculateDistance = (lat1, lon1, lat2, lon2) => {
   //   if (
@@ -115,7 +119,7 @@ const NearbyScreen = ({navigation}) => {
   //   return (distance / 1000).toFixed(2);
   // };
 
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const calculateDistance = useMemo(() => (lat1, lon1, lat2, lon2) => {
     if (
       !lat1 ||
       !lon1 ||
@@ -143,23 +147,26 @@ const NearbyScreen = ({navigation}) => {
     const distance = R * c;
   
     return distance.toFixed(2);
-  };
+  }, [currentLocation]);
 
   const fetchShopData = async () => {
-    // console.log(currentLocation.latitude, currentLocation.longitude);
     if (!currentLocation) {
       return;
     }
-    setisLoading(true); 
+    setisLoading(true);
     try {
+      console.log('Fetching shop data...');
+      const startTime = Date.now();
       const response = await axios.get(
         endpoint.getShop(currentLocation.latitude, currentLocation.longitude),
         {
           headers: {
             Authorization: `Bearer ${userToken}`,
-          }, 
+          },
         },
       );
+      const endTime = Date.now();
+      console.log(`API call duration: ${endTime - startTime}ms`);
       const shopsWithDistance = response.data.data
         .map(shop => ({
           ...shop,
@@ -178,6 +185,7 @@ const NearbyScreen = ({navigation}) => {
       setisLoading(false);
     }
   };
+  
   
 
   const onRefresh = async () => {
