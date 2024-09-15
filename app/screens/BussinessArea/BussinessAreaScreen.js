@@ -24,6 +24,12 @@ const BussinessAreaScreen = ({navigation}) => {
         subtitle={'Konsultasi bisnis dengan mentor berpengalaman'}
       />
        <CardHorizontalButton
+        title="Webinar & Event"
+        iconName={'chalkboard-teacher'}
+        subtitle={'Lihat webinar & event untuk scale up dan networking bisnis anda disini!'}
+        onPress={() => navigation.navigate('WebinarScreen')}
+      />
+       <CardHorizontalButton
         title="Pendanaan UMKM"
         iconName={'money-bill-alt'}
         subtitle={'Pendanaan untuk scale up'}

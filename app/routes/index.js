@@ -36,6 +36,8 @@ import BussinessAreaScreen from '../screens/BussinessArea/BussinessAreaScreen';
 import TemplateWebsiteScreen from '../screens/TemplateWebsiteScreen/TemplateWebsiteScreen';
 import MentorScreen from '../screens/Mentors/MentorScreen';
 import TermsAndConditions from '../screens/Mentors/TermsAndConditions';
+import WebinarScreen from '../screens/Webinars/WebinarScreen';
+import WebinarDetailScreen from '../screens/Webinars/WebinarDetailScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -271,10 +273,32 @@ function MainAppStack() {
         }}
       />
       <Stack.Screen
+        name="WebinarDetailScreen"
+        component={WebinarDetailScreen}
+        options={{
+          headerTitle: 'Detail Webinar',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
         name="ListAllNews"
         component={ListAllNews}
         options={{
           headerTitle: 'Artikel dan Blog',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="WebinarScreen"
+        component={WebinarScreen}
+        options={{
+          headerTitle: 'Webinar & Event',
           headerStyle: {
             backgroundColor: COLOR_PRIMARY,
           },

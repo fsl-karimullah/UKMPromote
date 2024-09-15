@@ -10,6 +10,8 @@ export const endpoint = {
   getProfile: `${url}/api/me`,
   getEducation: `${url}/api/education`,
   getTemplates: `${url}/api/packages`,
+  getWebinars: `${url}/api/webinars`,
+  getWebinarDetails:(id) => `${url}/api/webinars/${id}`,
   getMentors: `${url}/api/mentors`,
   getEducationById:(id) => `${url}/api/education/${id}`,
   searchShop: (lat, lng, value) => `${url}/api/shops?q=${value}&lat=${lat}&lng=${lng}`,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { InterBold, InterRegular } from '../../resources/fonts';
+import { currencyFormat } from '../../resources/helper';
 
 const TemplateCard = ({ template, onBuyPress, onPreviewPress }) => {
   return (
@@ -11,9 +12,10 @@ const TemplateCard = ({ template, onBuyPress, onPreviewPress }) => {
       />
       <View style={styles.content}>
         <Text style={styles.title}>{template.name}</Text>
+        <Text style={styles.price}>{currencyFormat(template.price)}</Text>
         <Text numberOfLines={3} style={styles.description}>
           {template.description}
-        </Text>
+        </Text> 
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.buyButton} onPress={onBuyPress}>
             <Text style={styles.buttonText}>Beli</Text>
@@ -32,54 +34,65 @@ export default TemplateCard;
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 20,
-    elevation: 3, 
+    elevation: 5, 
     shadowColor: '#000', 
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
   },
   thumbnail: {
     width: '100%',
-    height: 150,
+    height: 160,
     resizeMode: 'cover',
   },
   content: {
-    padding: 15,
+    padding: 20,
   },
   title: {
-    fontSize: 18,
-    marginBottom: 8,
-    fontFamily:InterBold,
-    color:'black'
+    fontSize: 20,
+    marginBottom: 10,
+    fontFamily: InterBold,
+    color: '#333',
+  },
+  price: {
+    fontSize: 22,
+    marginBottom: 12,
+    fontFamily: InterBold,
+    color: '#d32f2f',
   },
   description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-    fontFamily:InterRegular
+    fontSize: 16,
+    color: '#777',
+    marginBottom: 16,
+    fontFamily: InterRegular,
+    lineHeight: 22,
   },
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   buyButton: {
-    backgroundColor: '#e53935',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    backgroundColor: '#d32f2f',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 10,
   },
   previewButton: {
-    backgroundColor: '#333',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    backgroundColor: '#424242',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    flex: 1,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: InterBold,
+    textAlign: 'center',
   },
 });
