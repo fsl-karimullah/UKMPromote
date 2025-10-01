@@ -38,6 +38,10 @@ import MentorScreen from '../screens/Mentors/MentorScreen';
 import TermsAndConditions from '../screens/Mentors/TermsAndConditions';
 import WebinarScreen from '../screens/Webinars/WebinarScreen';
 import WebinarDetailScreen from '../screens/Webinars/WebinarDetailScreen';
+import OnlineCourseScreen from '../screens/OnlineCourse/OnlineCourseScreen';
+import DetailOnlineCourse from '../screens/OnlineCourse/DetailOnlineCourse';
+import PaymentWebView from '../screens/OnlineCourse/PaymentWebview';
+import OnlineCourseVideo from '../screens/OnlineCourse/OnlineCourseVideo';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -54,7 +58,7 @@ function MyTabs() {
           marginBottom: 4,
           fontFamily: InterBold,
         },
-      }}> 
+      }}>
       <Tab.Screen
         name="HomeScreen"
         options={{
@@ -128,7 +132,6 @@ function MyTabs() {
       />
     </Tab.Navigator>
   );
-
 }
 
 function AuthStack() {
@@ -174,7 +177,7 @@ function AuthStack() {
         }}
       />
       <Stack.Screen
-        name="Tab" 
+        name="Tab"
         component={MainAppStack}
         options={{headerShown: false}}
       />
@@ -184,7 +187,7 @@ function AuthStack() {
 
 function MainAppStack() {
   return (
-    <Stack.Navigator >
+    <Stack.Navigator>
       <Stack.Screen
         name="Main"
         component={MyTabs}
@@ -295,6 +298,51 @@ function MainAppStack() {
         }}
       />
       <Stack.Screen
+        name="OnlineCourseScreen"
+        component={OnlineCourseScreen}
+        options={{
+          headerTitle: 'Kelas Online',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="DetailCourseScreen"
+        component={DetailOnlineCourse}
+        options={{
+          headerTitle: 'Detail Kelas',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="OnlineCourseVideo"
+        component={OnlineCourseVideo}
+        options={{
+          headerTitle: 'Belajar Sekarang',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+      <Stack.Screen
+        name="PaymentWebView"
+        component={PaymentWebView}
+        options={{
+          headerTitle: 'Checkout Kelas',
+          headerStyle: {
+            backgroundColor: COLOR_PRIMARY,
+          },
+          headerTintColor: 'white',
+        }}
+      />
+
+      <Stack.Screen
         name="WebinarScreen"
         component={WebinarScreen}
         options={{
@@ -370,7 +418,7 @@ function App() {
         }
 
         if (isLoggedIn !== null) {
-          setIsLoggedIn(isLoggedIn); 
+          setIsLoggedIn(isLoggedIn);
         }
 
         setIsLoading(false);

@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, FlatList } from 'react-native';
 import axios from 'axios';
 import { endpoint } from '../../api/endpoint';
 import CardWebinar from '../../components/Cards/CardWebinar';
 import { InterBold, InterRegular } from '../../resources/fonts';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 
 const WebinarScreen = () => {
   const [webinars, setWebinars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigation = useNavigation(); // Initialize navigation hook
+  const navigation = useNavigation();
 
   const fetchWebinars = async () => {
     try {
       const response = await axios.get(endpoint.getWebinars);
       setWebinars(response.data.data);
-      setLoading(false);
     } catch (err) {
       setError('Failed to load webinars');
+    } finally {
       setLoading(false);
     }
   };
@@ -32,12 +32,12 @@ const WebinarScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-      <CardWebinar webinar={item} onPress={() => handlePress(item)} />
-  ); 
+    <CardWebinar webinar={item} onPress={() => handlePress(item)} />
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.screenTitle}>Upcoming Webinars & Event</Text>
+      <Text style={styles.screenTitle}>Upcoming Webinars & Events</Text>
       {loading ? (
         <ActivityIndicator size="large" color="#e53935" />
       ) : error ? (
@@ -48,7 +48,10 @@ const WebinarScreen = () => {
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.webinarList}
-          ListEmptyComponent={<Text style={styles.emptyText}>No webinars available</Text>}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No webinars available</Text>
+          }
         />
       )}
     </View>
@@ -61,23 +64,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    padding: 16,
   },
   screenTitle: {
     fontSize: 24,
-    marginBottom: 16,
+    marginVertical: 16,
     color: '#333',
     fontFamily: InterBold,
     textAlign: 'center',
   },
   webinarList: {
-    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   errorText: {
     color: 'red',
     fontSize: 18,
     textAlign: 'center',
     fontFamily: InterRegular,
+    marginTop: 20,
   },
   emptyText: {
     fontSize: 16,

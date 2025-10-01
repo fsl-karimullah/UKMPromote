@@ -6,10 +6,17 @@ const BussinessAreaScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
        <CardHorizontalButton
-        title="Kelas Bisnis"
+        title="Kelas Online"
+        iconName={'arrow-right'}
+        isHot={true}
+        onPress={() => navigation.navigate('OnlineCourseScreen')}
+        subtitle={'Kelas Online untuk belajar berbagai macam materi bisnis'}
+      />
+       <CardHorizontalButton
+        title="Rekaman webinar"
         iconName={'arrow-right'}
         onPress={() => navigation.navigate('BussinessVideo')}
-        subtitle={'Kelas bisnis berupa video yang bisa anda lihat'}
+        subtitle={'Kelas webinar berupa video yang bisa anda tonton ulang'}
       />
       <CardHorizontalButton
         title="Beli Website"
@@ -24,7 +31,7 @@ const BussinessAreaScreen = ({navigation}) => {
         subtitle={'Konsultasi bisnis dengan mentor berpengalaman'}
       />
        <CardHorizontalButton
-        title="Webinar & Event"
+        title="Webinar & Produk Digital"
         iconName={'chalkboard-teacher'}
         subtitle={'Lihat webinar & event untuk scale up dan networking bisnis anda disini!'}
         onPress={() => navigation.navigate('WebinarScreen')}

@@ -4,13 +4,13 @@ import images from '../../resources/images';
 import { InterBold, InterMedium } from '../../resources/fonts';
 import { COLOR_PRIMARY } from '../../resources/colors';
 
-const SplashScreen = ({navigation}) => {
+const SplashScreen = ({navigation}) => { 
 
   return (
     <ImageBackground style={styles.background}>
       <View style={styles.container}>
         <Image source={images.logoFirst} style={styles.logo} />
-        <Text style={styles.title}>Brand-In Indonesia</Text>
+        <Text style={styles.title}>Akademi UMKM Indonesia</Text>
         <Text style={styles.subtitle}>From Sixeyes Technologies</Text>
       </View>
     </ImageBackground>

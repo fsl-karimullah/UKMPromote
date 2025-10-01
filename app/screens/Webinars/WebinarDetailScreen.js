@@ -3,11 +3,11 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   ActivityIndicator,
   Linking,
   Image,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import axios from 'axios';
 import {endpoint} from '../../api/endpoint';
@@ -17,6 +17,9 @@ import {
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
 import ButtonPrimary from '../../components/Buttons/ButtonPrimary';
+import RenderHTML from 'react-native-render-html';
+
+const {width} = Dimensions.get('window');
 
 const WebinarDetailScreen = ({route}) => {
   const {id} = route.params;
@@ -65,13 +68,19 @@ const WebinarDetailScreen = ({route}) => {
             {/* Webinar Title */}
             <Text style={styles.title}>{webinar.title}</Text>
 
-            {/* Webinar Description */}
-            <Text style={styles.description}>{webinar.description}</Text>
+            {/* Webinar Description with HTML parsing */}
+            <View style={styles.description}>
+              <RenderHTML
+                contentWidth={width - 32}
+                source={{html: webinar.description}}
+                baseStyle={{fontFamily: InterRegular, color: '#666', lineHeight: 24}}
+              />
+            </View>
           </ScrollView>
 
           {/* Register Button fixed at the bottom */}
           <View style={styles.buttonContainer}>
-            <ButtonPrimary title={'Daftar Sekarang'} onPress={handleRegister}/>
+            <ButtonPrimary title={'Enroll'} onPress={handleRegister} />
           </View>
         </>
       )}
@@ -95,30 +104,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     resizeMode: 'contain',
     alignSelf: 'center',
+    marginTop: 16,
   },
   title: {
     fontSize: 24,
     marginVertical: 12,
-    paddingHorizontal: 16, 
+    paddingHorizontal: 16,
     color: '#000',
     fontFamily: InterBold,
     textAlign: 'center',
-    lineHeight: 32, 
+    lineHeight: 32,
   },
   description: {
-    fontSize: 16,
-    marginVertical: 10, 
+    marginVertical: 10,
     paddingHorizontal: 16,
-    color: '#666',
-    fontFamily: InterRegular,
-    lineHeight: 24, 
-    textAlign: 'justify',
   },
   errorText: {
     color: 'red',
     fontSize: 18,
     textAlign: 'center',
     fontFamily: InterRegular,
+    marginTop: 20,
   },
   buttonContainer: {
     position: 'absolute',

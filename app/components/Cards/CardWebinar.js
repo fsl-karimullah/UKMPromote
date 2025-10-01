@@ -1,22 +1,34 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Linking } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import RenderHTML from 'react-native-render-html';
 import { InterBold, InterRegular } from '../../resources/fonts';
 import ButtonPrimary from '../Buttons/ButtonPrimary';
 
-const CardWebinar = ({ webinar,onPress }) => {
- 
+const { width } = Dimensions.get('window');
 
+const CardWebinar = ({ webinar, onPress }) => {
   return (
     <View style={styles.cardContainer}>
       <Image source={{ uri: webinar.thumbnail }} style={styles.thumbnail} />
       <View style={styles.content}>
         <Text style={styles.title}>{webinar.title}</Text>
-        <Text style={styles.description} numberOfLines={3}>
-          {webinar.description}
-        </Text>
-        {/* <TouchableOpacity style={styles.button} onPress={onPress}>
-          <Text style={styles.buttonText}>Lihat Detail</Text>
-        </TouchableOpacity> */}
+
+        {webinar.description ? (
+          <RenderHTML
+            contentWidth={width - 30} // card padding 15 each side
+            source={{ html: webinar.description }}
+            baseStyle={styles.description}
+            tagsStyles={{
+              p: { marginBottom: 4 },
+              li: { marginBottom: 2 },
+            }}
+            defaultTextProps={{
+              numberOfLines: 3,
+              ellipsizeMode: 'tail',
+            }}
+          />
+        ) : null}
+
         <ButtonPrimary title={'Lihat Detail'} onPress={onPress} />
       </View>
     </View>
@@ -49,24 +61,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     color: '#333',
-    fontFamily:InterBold
+    fontFamily: InterBold,
   },
   description: {
     fontSize: 14,
     color: '#666',
     marginBottom: 12,
-    fontFamily:InterRegular
-  },
-  button: {
-    backgroundColor: '#e53935',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: InterRegular,
+    lineHeight: 20,
   },
 });

@@ -6,15 +6,15 @@ const EducationScreen = ({navigation}) => {
   const educationalVideos = [
     {
       id: '1',
-      title: 'Cara upload bisnis ke Brand-In ke Brand-in',
+      title: 'Cara upload bisnis ke Akademi UMKM ke Akademi UMKM',
       description:
-        'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis.',
+        'Mempelajari cara menggunakan admin page di Akademi UMKM untuk mengupload bisnis.',
       imageSource: 'https://i.ytimg.com/vi/25RD3_TE33s/maxresdefault.jpg',
       onPress: navigation =>
         navigation.navigate('EducationalDetail', {
-          title: 'Belajar Basic Upload UMKM ke Brand-in',
+          title: 'Belajar Basic Upload UMKM ke Akademi UMKM',
           description:
-            'Mempelajari cara menggunakan admin page di brand-in untuk mengupload bisnis',
+            'Mempelajari cara menggunakan admin page di Akademi UMKM untuk mengupload bisnis',
           youtubeVideoId: '25RD3_TE33s',
           datePosted: Date.now(),
         }),

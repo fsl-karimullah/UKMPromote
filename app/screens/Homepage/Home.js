@@ -75,26 +75,15 @@ const Home = ({navigation}) => {
   const [isAcceptLocation, setisAcceptLocation] = useState(false);
   const [NewsData, setNewsData] = useState([]);
 
-  // const menuData = [
-  //   {
-  //     id: '1',
-  //     title: 'Area Pebisnis',
-  //     icon: 'money',
-  //     route: 'ComingSoonScreen',
-  //   },
-  //   {
-  //     id: '2',
-  //     title: 'Konsultasi Bisnis',
-  //     icon: 'handshake',
-  //     route: 'ComingSoonScreen',
-  //   },
-  //   {
-  //     id: '3',
-  //     title: 'Pembuatan Website',
-  //     icon: 'web',
-  //     route: 'ComingSoonScreen',
-  //   },
-  // ];
+  const menuData = [
+    {
+      id: '1',
+      title: 'Kelas Bisnis',
+      icon: 'user-graduate',
+      route: 'OnlineCourseScreen',
+    },
+ 
+  ];
 
   const getTokenData = async () => {
     try {
@@ -334,7 +323,7 @@ const Home = ({navigation}) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.listContainer}
           />
-        </View> */}
+        </View>  */}
 
         <View style={styles.containerCard}>
           <TitleWithArrow
