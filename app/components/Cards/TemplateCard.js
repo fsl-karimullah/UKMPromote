@@ -1,19 +1,20 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { InterBold, InterRegular } from '../../resources/fonts';
 import { currencyFormat } from '../../resources/helper';
+
+const { width } = Dimensions.get('window');
+const CARD_MARGIN = 10;
+const CARD_WIDTH = (width - 20 * 2 - CARD_MARGIN) / 2; // sama seperti di FlatList
 
 const TemplateCard = ({ template, onBuyPress, onPreviewPress }) => {
   return (
     <View style={styles.cardContainer}>
-      <Image
-        source={{ uri: template.thumbnail }}
-        style={styles.thumbnail}
-      />
+      <Image source={{ uri: template.thumbnail }} style={styles.thumbnail} />
       <View style={styles.content}>
-        <Text style={styles.title}>{template.name}</Text>
+        <Text style={styles.title} numberOfLines={1}>{template.name}</Text>
         <Text style={styles.price}>{currencyFormat(template.price)}</Text>
-        <Text numberOfLines={3} style={styles.description}>
+        <Text numberOfLines={2} style={styles.description}>
           {template.description}
         </Text> 
         <View style={styles.buttonsContainer}>
@@ -34,64 +35,61 @@ export default TemplateCard;
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 20,
-    elevation: 5, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    width: CARD_WIDTH,
   },
   thumbnail: {
     width: '100%',
-    height: 160,
+    height: 120,
     resizeMode: 'cover',
   },
   content: {
-    padding: 20,
+    padding: 12,
   },
   title: {
-    fontSize: 20,
-    marginBottom: 10,
+    fontSize: 14,
     fontFamily: InterBold,
     color: '#333',
+    marginBottom: 4,
   },
   price: {
-    fontSize: 22,
-    marginBottom: 12,
+    fontSize: 14,
     fontFamily: InterBold,
     color: '#d32f2f',
+    marginBottom: 6,
   },
   description: {
-    fontSize: 16,
-    color: '#777',
-    marginBottom: 16,
+    fontSize: 12,
+    color: '#666',
     fontFamily: InterRegular,
-    lineHeight: 22,
+    lineHeight: 16,
+    marginBottom: 10,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 8,
   },
   buyButton: {
     backgroundColor: '#d32f2f',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
     flex: 1,
-    marginRight: 10,
   },
   previewButton: {
     backgroundColor: '#424242',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
     flex: 1,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 12,
     fontFamily: InterBold,
     textAlign: 'center',
   },

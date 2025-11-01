@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, ActivityIndicator, Linking } from 'react-native';
+import { View, FlatList, StyleSheet, ActivityIndicator, Linking, Dimensions } from 'react-native';
 import axios from 'axios';
 import TemplateCard from '../../components/Cards/TemplateCard';
 import { endpoint } from '../../api/endpoint';
 
+const { width } = Dimensions.get('window');
+const CARD_MARGIN = 10;
+const CARD_WIDTH = (width - 20 * 2 - CARD_MARGIN) / 2; 
+
 const TemplateWebsiteScreen = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingItems, setLoadingItems] = useState({}); 
+  const [loadingItems, setLoadingItems] = useState({});
+  const numColumns = 2;
 
   const fetchTemplates = async () => {
     try {
@@ -25,7 +30,7 @@ const TemplateWebsiteScreen = () => {
   }, []);
 
   const handleBuyPress = (templateName) => {
-    const phoneNumber = '+6285281252199'; 
+    const phoneNumber = '+6285281252199';
     const message = `Hello, I am interested in buying the template: ${templateName}`;
     const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
@@ -68,6 +73,8 @@ const TemplateWebsiteScreen = () => {
       data={templates}
       renderItem={renderItem}
       keyExtractor={(item, index) => index.toString()}
+      numColumns={numColumns}
+      columnWrapperStyle={styles.row}
       contentContainerStyle={styles.container}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
@@ -79,14 +86,15 @@ export default TemplateWebsiteScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  row: {
+    justifyContent: 'space-between',
   },
   itemContainer: {
+    width: CARD_WIDTH,
     marginBottom: 20,
   },
 });

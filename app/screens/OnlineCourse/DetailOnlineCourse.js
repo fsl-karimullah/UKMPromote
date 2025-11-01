@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Alert,
+  Linking
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute, useNavigation} from '@react-navigation/native';
@@ -65,6 +66,7 @@ const DetailOnlineCourse = () => {
     }
   };
 
+
 const normalizeVideoUrl = (url) => {
   if (!url) return '';
 
@@ -105,7 +107,16 @@ const normalizeVideoUrl = (url) => {
     return url; // fallback
   }
 
-  // Fallback for other links (Vimeo, etc.)
+  // WhatsApp links (group invite, chat, etc.)
+  if (url.includes('wa.me') || url.includes('whatsapp.com')) {
+    // open externally instead of embedding
+    Linking.openURL(url).catch(err =>
+      console.error('Failed to open WhatsApp link:', err)
+    );
+    return ''; // return empty so WebView doesn’t try to render it
+  }
+
+  // Fallback (other links like Vimeo, etc.)
   return url;
 };
 

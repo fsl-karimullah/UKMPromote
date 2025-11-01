@@ -50,9 +50,6 @@ function MyTabs() {
     <Tab.Navigator
       screenOptions={{
         tabBarHideOnKeyboard: true,
-        tabBarStyle: {
-          height: heightPercentageToDP(7),
-        },
         tabBarActiveTintColor: COLOR_PRIMARY,
         tabBarLabelStyle: {
           marginBottom: 4,
@@ -407,6 +404,8 @@ function App() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
+    // console.log('IS tokeNNN', isToken);
+    
     const getData = async () => {
       try {
         setIsLoading(true);

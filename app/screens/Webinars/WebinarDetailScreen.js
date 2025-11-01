@@ -80,7 +80,7 @@ const WebinarDetailScreen = ({route}) => {
 
           {/* Register Button fixed at the bottom */}
           <View style={styles.buttonContainer}>
-            <ButtonPrimary title={'Enroll'} onPress={handleRegister} />
+            <ButtonPrimary title={'Saya Mau Ini!'} onPress={handleRegister} />
           </View>
         </>
       )}

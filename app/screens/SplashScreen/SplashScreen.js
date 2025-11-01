@@ -10,7 +10,7 @@ const SplashScreen = ({navigation}) => {
     <ImageBackground style={styles.background}>
       <View style={styles.container}>
         <Image source={images.logoFirst} style={styles.logo} />
-        <Text style={styles.title}>Akademi UMKM Indonesia</Text>
+        <Text style={styles.title}>Akademi UMKM Digital</Text>
         <Text style={styles.subtitle}>From Sixeyes Technologies</Text>
       </View>
     </ImageBackground>

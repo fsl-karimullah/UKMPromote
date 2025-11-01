@@ -253,9 +253,9 @@ const Home = ({navigation}) => {
   };
 
   const bannerImages = [
-    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
-    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
-    'https://storage.googleapis.com/fastwork-static/7afd414f-4746-4914-abcb-8ff86133d1bd.jpg',
+    'https://github.com/fsl-karimullah/my-img-source/blob/main/Akademi%20UMKM%20Banner.png?raw=true',
+    'https://github.com/fsl-karimullah/my-img-source/blob/main/Webinar%20Banner.png?raw=true',
+    'https://github.com/fsl-karimullah/my-img-source/blob/main/Webinar%20Banner.png?raw=true',
   ];
 
   const [numColumns, setNumColumns] = useState(2);
@@ -358,7 +358,7 @@ const Home = ({navigation}) => {
         </View>
         <View style={styles.containerCard}>
           <TitleWithArrow
-            title={'Toko Sekitar'}
+            title={'Bisnis Sekitar'}
             onPressSeeAll={() => navigation.navigate('NearbyScreen')}
           />
           {isLoading ? (

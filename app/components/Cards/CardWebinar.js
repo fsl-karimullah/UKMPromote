@@ -1,37 +1,31 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import RenderHTML from 'react-native-render-html';
 import { InterBold, InterRegular } from '../../resources/fonts';
-import ButtonPrimary from '../Buttons/ButtonPrimary';
 
-const { width } = Dimensions.get('window');
-
-const CardWebinar = ({ webinar, onPress }) => {
+const CardWebinar = ({ webinar, onPress, width }) => {
   return (
-    <View style={styles.cardContainer}>
+    <TouchableOpacity style={[styles.cardContainer, { width }]} onPress={onPress} activeOpacity={0.85}>
       <Image source={{ uri: webinar.thumbnail }} style={styles.thumbnail} />
       <View style={styles.content}>
-        <Text style={styles.title}>{webinar.title}</Text>
+        <Text style={styles.title} numberOfLines={2}>
+          {webinar.title}
+        </Text>
 
         {webinar.description ? (
           <RenderHTML
-            contentWidth={width - 30} // card padding 15 each side
+            contentWidth={width - 24}
             source={{ html: webinar.description }}
             baseStyle={styles.description}
-            tagsStyles={{
-              p: { marginBottom: 4 },
-              li: { marginBottom: 2 },
-            }}
-            defaultTextProps={{
-              numberOfLines: 3,
-              ellipsizeMode: 'tail',
-            }}
+            tagsStyles={{ p: { marginBottom: 2 } }}
           />
         ) : null}
 
-        <ButtonPrimary title={'Lihat Detail'} onPress={onPress} />
+        <View style={styles.buttonContainer}>
+          <Text style={styles.detailText}>Lihat Detail →</Text>
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -40,34 +34,42 @@ export default CardWebinar;
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 20,
-    elevation: 4, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.2,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
   thumbnail: {
     width: '100%',
-    height: 160,
+    height: 110,
     resizeMode: 'cover',
   },
   content: {
-    padding: 15,
+    padding: 10,
   },
   title: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 13,
+    marginBottom: 6,
     color: '#333',
     fontFamily: InterBold,
   },
   description: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#666',
-    marginBottom: 12,
     fontFamily: InterRegular,
-    lineHeight: 20,
+    lineHeight: 15,
+    marginBottom: 8,
+  },
+  buttonContainer: {
+    alignItems: 'flex-end',
+  },
+  detailText: {
+    fontSize: 12,
+    color: '#e53935',
+    fontFamily: InterBold,
   },
 });
