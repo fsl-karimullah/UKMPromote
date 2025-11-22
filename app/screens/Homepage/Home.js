@@ -253,8 +253,8 @@ const Home = ({navigation}) => {
   };
 
   const bannerImages = [
+    'https://github.com/fsl-karimullah/my-img-source/blob/main/BANNER%201%20X%200,5.png?raw=true',
     'https://github.com/fsl-karimullah/my-img-source/blob/main/Akademi%20UMKM%20Banner.png?raw=true',
-    'https://github.com/fsl-karimullah/my-img-source/blob/main/Webinar%20Banner.png?raw=true',
     'https://github.com/fsl-karimullah/my-img-source/blob/main/Webinar%20Banner.png?raw=true',
   ];
 

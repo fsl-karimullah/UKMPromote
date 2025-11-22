@@ -135,6 +135,12 @@ const LoginScreen = ({ registerUser }) => {
               <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
             </TouchableOpacity>
           </View>
+          <Text style={styles.headerSubtitle}>
+            Email Demo : faisalbic123@gmail.com
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            Password Demo : qweqweqwe
+          </Text>
           <ButtonPrimary
             title="Masuk"
             onPress={handleLoginPress}
