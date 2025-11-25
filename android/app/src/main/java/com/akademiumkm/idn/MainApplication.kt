@@ -1,4 +1,4 @@
-package com.ukmpromote
+package com.akademiumkm.idn
 
 import android.app.Application
 import com.facebook.react.PackageList

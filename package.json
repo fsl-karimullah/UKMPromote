@@ -1,6 +1,6 @@
 {
-  "name": "UkmPromote",
-  "version": "0.0.3",
+  "name": "akademiumkm",
+  "version": "0.0.4",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

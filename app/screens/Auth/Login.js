@@ -108,7 +108,7 @@ const LoginScreen = ({ registerUser }) => {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Email"
+              placeholder="Masukkan Email Disini"
               keyboardType="email-address"
               value={email}
               onChangeText={text => setEmail(text)}
@@ -135,12 +135,12 @@ const LoginScreen = ({ registerUser }) => {
               <Text style={styles.forgotPasswordText}>Lupa Password ?</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.headerSubtitle}>
+          {/* <Text style={styles.headerSubtitle}>
             Email Demo : faisalbic123@gmail.com
           </Text>
           <Text style={styles.headerSubtitle}>
             Password Demo : qweqweqwe
-          </Text>
+          </Text> */}
           <ButtonPrimary
             title="Masuk"
             onPress={handleLoginPress}
